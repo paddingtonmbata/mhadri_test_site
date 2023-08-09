@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="./styles/style.css">
+    <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
     <title>Mhadri | Migration Health Courses Repository</title>
 </head>
 <body>
@@ -20,14 +21,27 @@
                     <p>This <strong>course/training portal</strong> is a repository of all <br/> Migration and Health Related courses and traings obtained from IOM's courses/training database.</p>
                 </div>
                 <div class="map">
-                    <img src="./images/worldmap.svg" alt="worldmap">
+                    <img  src="./images/worldmap.svg" alt="worldmap">
                 </div>
             </div>
             <div class="row-2">
-
+                <img id="down_nav_arrow" src="./images/down_arrow.webp" alt="\/">
             </div>
         </div>
     </div>
-    <div class="content"></div>
+    <div id="stats_page_wrapper">
+        <div id="stats_page_card">
+            <div class="row-1">
+                <div id="map"></div>
+                <div id="bargraph"></div>
+            </div>
+            <div class="row-2">
+                <div id="piechart1"></div>
+                <div id="piechart2"></div>
+                <div id="piechart3"></div>
+            </div>
+        </div>
+    </div>
+    <script src="./js/main.js"></script>
 </body>
 </html>

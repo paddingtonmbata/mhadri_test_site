@@ -60,46 +60,77 @@ body {
     height: 100vh;
 }
 
-.landing-page header {
+.landing-page .header {
   width: 100%;
+  max-height: 15%;
 }
 
 .logo {
-  width: 280px;
+  width: 200px;
   height: auto;
   margin: 35px 0 15px 25px;
 }
 
 .landing-page-content {
   width: 100%;
-  padding: 20px 80px;
+  min-height: 70%;
+  padding: 0 4%;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  margin-top: 80px;
+  margin-top: 50px;
+  max-height: 85%;
 }
 
 .landing-page-content .row-1 {
+  width: 100%;
   display: flex;
   flex-direction: row;
+  max-height: 80%;
 }
 
 .map img {
-  width: 1000px;
+  width: 100%;
   height: auto;
 }
 
 .text {
-  width: 500px;
+  width: 35%;
   padding-top: 15px;
 }
 .text p {
   margin: 10px 0px 0px 5px;
 }
 
-.heading {
-  font-size: 48px;
+.landing-page-content .row-1 .text .heading {
+  font-size: 2.8rem;
   color: $heading-text-color;
   text-shadow: $heading-text-shadow;
+}
+
+#down_nav_arrow {
+  margin-top: 10px;
+  transition: all 500ms linear;
+}
+
+#down_nav_arrow:hover {
+  transform: scale(1.3);
+}
+#stats_page_wrapper {
+  height: 100vh;
+  width: 100vw;
+  padding: 2% 2.5%;
+}
+
+#stats_page_card {
+  background-color: $card-color;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 0 20px -3px rgba(0, 0, 0, 0.25);
+}
+#bargraph {
+  width: 50%;
+  height: 50%;
 }
