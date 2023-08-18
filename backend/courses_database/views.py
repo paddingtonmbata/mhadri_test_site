@@ -11,12 +11,21 @@ class CourseDataList(generics.ListAPIView):
         country_name = self.request.query_params.get('country')
         institution_name = self.request.query_params.get('institution')
         teaching_mechanism = self.request.query_params.get('teaching_mechanism')
-        institution_name = self.request.query_params.get('institution')
-        institution_name = self.request.query_params.get('institution')
-        institution_name = self.request.query_params.get('institution')
-        institution_name = self.request.query_params.get('institution')
-        institution_name = self.request.query_params.get('institution')
-        institution_name = self.request.query_params.get('institution')
+        target_population = self.request.query_params.get('target_population')
+        target_audience = self.request.query_params.get('target_audience')
+        type_of_course = self.request.query_params.get('type_of_course')
+        search_term = self.request.query_params.get('search')
+
+        if search_term:
+            queryset = queryset.filter(
+                Q(type_of_course__icontains=search_term) |
+                Q(thematic_focus__icontains=search_term) |
+                Q(target_population__icontains=search_term) |
+                Q(scope__icontains=search_term) |
+                Q(objective_of_training__icontains=search_term) |
+                Q(teaching_approach__icontains=search_term) |
+                Q(frequency_of_training__icontains=search_term)
+            )
 
         if country_name:
             queryset = queryset.filter(institution_location__country_name=country_name)

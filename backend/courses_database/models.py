@@ -23,7 +23,7 @@ class CourseData(models.Model):
     target_population = models.CharField(max_length=100)
     scope = models.TextField()
     objective_of_training = models.CharField(max_length=100)
-    target_population = models.CharField(max_length=100)
+    target_audience = models.CharField(max_length=100)
     traings_faculty = models.TextField()
     teaching_mechanism = models.CharField(choices=TeachingMechanisms.choices, default=TeachingMechanisms.ONLINE, max_length=20)
     teaching_approach = models.CharField(max_length=100)
