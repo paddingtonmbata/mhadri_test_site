@@ -1,7 +1,16 @@
 from rest_framework import generics
 from django.db.models import Q
-from .models import CourseData
+from .models import CourseData, Country
 from .serializers import CourseDataSerializer
+from django.db.models import Count
+from django.http import JsonResponse
+from django.shortcuts import render
+
+def country_course_count(request):
+    countries_with_counts = Country.objects.annotate(course_count=Count('coursedata'))
+    ordered_countries = sorted(countries_with_counts, key=lambda x: x.course_count, reverse=True)
+    countries_data = [{'country_name': country.country_name, 'course_count': country.course_count} for country in ordered_countries]
+    return JsonResponse(countries_data, safe=False)
 
 class CourseDataList(generics.ListAPIView):
     serializer_class = CourseDataSerializer

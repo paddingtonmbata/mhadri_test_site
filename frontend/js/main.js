@@ -6,31 +6,22 @@ down_nav_arrow.addEventListener("click", () => {
     stats_page_wrapper.scrollIntoView({ behavior: "smooth"});
 });
 
-zingchart.render({
-    id: 'bargraph',
-    data: {
-      type: 'hbar',
-      plot:{
-        barWidth: 10
-      },
-      plotarea: {
-        'adjust-layout':true
-      },
-      series: [
-        { 
-            values: [0, 0, 1, 1, 1, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6 , 8, 8, 9, 10, 11, 14, 18, 20, 21, 25],
-            'hover-state': {
-                'background-color': 'red'
-            }
-        
-        }
-      ],
-      scaleX: {
-        labels: ['Label 1', 'Label 2', 'Label 3', 'Label 4', 'Label 5', 'Label 6', 'Label 7', 'Label 8', 'Label 9', 'Label 10', 'Label 11', 'Label 12', 'Label 13', 'Label 14', 'Label 15', 'Label 16', 'Label 17'],
-        label: {
-            text: "Countries"
-        }
-      }
-    }
-  });
+fetch('http://127.0.0.1:8000/api/country_course_count/')
+  .then(response => response.json())
+  .then(data => {
     
+    const categories = data.map(item => item.country_name);
+    const courseCounts = data.map(item => item.course_count);
+
+    const options = {
+      series: [{ data: courseCounts }],
+      chart: { type: 'bar', height: 350 },
+      plotOptions: { bar: { borderRadius: 4, horizontal: true } },
+      dataLabels: { enabled: false },
+      xaxis: { categories: categories },
+    };
+
+    const chart = new ApexCharts(document.querySelector("#bargraph"), options);
+    chart.render();
+  })
+  .catch(error => console.error('Error fetching data:', error));
