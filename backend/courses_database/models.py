@@ -32,3 +32,6 @@ class CourseData(models.Model):
     sustainibility_factors = models.TextField()
     key_challenges = models.TextField()
 
+    def __str__(self):
+        return f"Course information for {self.institution_name}, {self.institution_location} focusing on {self.thematic_focus}"
+

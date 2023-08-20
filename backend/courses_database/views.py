@@ -26,11 +26,9 @@ class CourseDataList(generics.ListAPIView):
                 Q(teaching_approach__icontains=search_term) |
                 Q(frequency_of_training__icontains=search_term)
             )
-
-        if country_name:
-            queryset = queryset.filter(institution_location__country_name=country_name)
-        
-        if institution_name:
+        elif country_name:
+            queryset = queryset.filter(institution_location__country_name=country_name)        
+        elif institution_name:
             queryset = queryset.filter(institution_name=institution_name)
 
         return queryset
