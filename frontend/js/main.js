@@ -160,3 +160,10 @@ const p3_options = {
 };
 const piechart3 = new ApexCharts(document.querySelector("#piechart3"), p3_options);
 piechart3.render();
+
+
+$(function() {
+  $.getJSON('http://127.0.0.1:8000/api/country_course_count/', function(data) {
+    console.log(data)
+  });
+});
