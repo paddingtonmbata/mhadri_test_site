@@ -12,7 +12,7 @@ def country_course_count(request):
     ordered_countries = sorted(countries_with_counts, key=lambda x: x.course_count, reverse=True)
     countries_data = [{'country_name': country.country_name, 'course_count': country.course_count} for country in ordered_countries]
     serializer = CountryCourseCountSerializer(countries_data, many=True)
-    return Response(serializer)
+    return Response(serializer.data)
 
 class CourseDataList(generics.ListAPIView):
     serializer_class = CourseDataSerializer
