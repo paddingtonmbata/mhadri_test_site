@@ -1,7 +1,7 @@
 from rest_framework import generics
 from django.db.models import Q
 from .models import *
-from .serializers import CourseDataSerializer, CountryCourseCountSerializer
+from .serializers import *
 from django.db.models import Count
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -13,6 +13,13 @@ def country_course_count(request):
     countries_data = [{'country_name': country.country_name, 'course_count': country.course_count} for country in ordered_countries]
     serializer = CountryCourseCountSerializer(countries_data, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def country_chloropleth(request):
+    countries_with_counts = Country.objects.annotate(course_count=Count('coursedata'))
+    countries_data = [{f'{country.country_code}': country.course_count} for country in countries_with_counts]
+    return Response(countries_data)
+        
 
 class CourseDataList(generics.ListAPIView):
     serializer_class = CourseDataSerializer
@@ -44,3 +51,4 @@ class CourseDataList(generics.ListAPIView):
             
 
         return queryset
+

@@ -161,9 +161,53 @@ const p3_options = {
 const piechart3 = new ApexCharts(document.querySelector("#piechart3"), p3_options);
 piechart3.render();
 
-
 $(function() {
-  $.getJSON('http://127.0.0.1:8000/api/country_course_count/', function(data) {
-    console.log(data)
+  $.getJSON('http://127.0.0.1:8000/api/country_chloropleth/', function(data) {
+    console.log(`chloropleth data: ${JSON.stringify(data)}`);
+
+    var mapData = {};
+    for (var i = 0; i < data.length; i++) {
+      var countryCode = Object.keys(data[i])[0];
+      var courseCount = data[i][countryCode];
+      mapData[countryCode] = courseCount;
+    }
+
+    $('#map').vectorMap({
+      map: 'world_mill',
+      series: {
+        regions: [{
+          values: mapData,
+          scale: ['#C8EEFF', '#0071A4'],
+          normalizeFunction: 'polynomial'
+        }]
+      },
+      markers: [],
+      onRegionTipShow: function(e, el, code) {
+        var countryName = $('#map').vectorMap('get', 'mapObject').getRegionName(code);
+        var courseCount = mapData[code];
+        if (courseCount) {
+          el.html(countryName + ' - ' + courseCount);
+        } else {
+          el.html(countryName + ' - N/A');
+        }
+      }
+    });
+
+    // Add bubble markers
+    var markers = [];
+    for (var countryCode in mapData) {
+      var courseCount = mapData[countryCode];
+      if (courseCount) {
+        markers.push({
+          latLng: [parseFloat($.fn.vectorMap.maps['world_mill'].paths[countryCode].lat), parseFloat($.fn.vectorMap.maps['world_mill'].paths[countryCode].lng)],
+          name: countryCode,
+          radius: Math.sqrt(courseCount) * 5,  // Adjust the factor as needed
+          fill: 'rgba(255, 0, 0, ' + (courseCount / 100) + ')'  // Adjust the alpha value
+        });
+      }
+    }
+
+    $('#map').vectorMap('addMap', 'world_mill', $.fn.vectorMap.maps.world_mill);
+    $('#map').vectorMap('addMarkers', markers);
   });
 });
