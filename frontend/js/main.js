@@ -6,6 +6,8 @@ down_nav_arrow.addEventListener("click", () => {
     stats_page_wrapper.scrollIntoView({ behavior: "smooth"});
 });
 
+
+
 // bargraph
 fetch('http://127.0.0.1:8000/api/country_course_count/')
   .then(response => response.json())
@@ -161,6 +163,8 @@ const p3_options = {
 const piechart3 = new ApexCharts(document.querySelector("#piechart3"), p3_options);
 piechart3.render();
 
+let mapObject;
+
 $(function() {
   $.getJSON('http://127.0.0.1:8000/api/country_chloropleth/', function(data) {
     console.log(`chloropleth data: ${JSON.stringify(data)}`);
@@ -172,13 +176,18 @@ $(function() {
       mapData[countryCode] = courseCount;
     }
 
-    $('#map').vectorMap({
+    mapObject = $('#map').vectorMap({
       map: 'world_mill',
+      backgroundColor: 'transparent',
+      zoomOnScroll: false,
       series: {
         regions: [{
           values: mapData,
           scale: ['#C8EEFF', '#0071A4'],
-          normalizeFunction: 'polynomial'
+          normalizeFunction: 'polynomial',
+          min: 0,
+          max: Math.max(...Object.values(mapData)),
+          defaultFill: '#727272' 
         }]
       },
       markers: [],
@@ -190,24 +199,104 @@ $(function() {
         } else {
           el.html(countryName + ' - N/A');
         }
+      },
+      onMarkerTipShow: function(event, label, index) {
+        label.html(markers[index].name + ': ' + mapData[markers[index].name]);
       }
     });
 
-    // Add bubble markers
-    var markers = [];
-    for (var countryCode in mapData) {
-      var courseCount = mapData[countryCode];
-      if (courseCount) {
-        markers.push({
-          latLng: [parseFloat($.fn.vectorMap.maps['world_mill'].paths[countryCode].lat), parseFloat($.fn.vectorMap.maps['world_mill'].paths[countryCode].lng)],
-          name: countryCode,
-          radius: Math.sqrt(courseCount) * 5,  // Adjust the factor as needed
-          fill: 'rgba(255, 0, 0, ' + (courseCount / 100) + ')'  // Adjust the alpha value
-        });
-      }
-    }
 
-    $('#map').vectorMap('addMap', 'world_mill', $.fn.vectorMap.maps.world_mill);
-    $('#map').vectorMap('addMarkers', markers);
+    $('#zoom-NA').click(function() {
+      mapObject.zoomIn({
+        region: 'NA', // North America ISO code
+        animate: true
+      });
+    });
+
+    $('#zoom-SA').click(function() {
+      mapObject.setFocus({
+        region: 'SA', // South America ISO code
+        animate: true
+      });
+    });
+
+    $('#zoom-EU').click(function() {
+      mapObject.setFocus({
+        region: 'EU', // Europe ISO code
+        animate: true
+      });
+    });
+
+    $('#zoom-AF').click(function() {
+      mapObject.setFocus({
+        region: 'AF', // Africa ISO code
+        animate: true
+      });
+    });
+
+    $('#zoom-AU').click(function() {
+      console.log('button clicked : ' + this)
+      mapObject.setFocus({
+        region: 'AU', // Australia ISO code
+        animate: true
+      });
+    });
+
+    $('#zoom-AS').click(function() {
+      console.log('button clicked : ' + this)
+      mapObject.setFocus({
+        region: 'AS', // Asia ISO code
+        animate: true
+      });
+    });
+
+    $('#zoom-RESET').click(function() {
+      console.log('button clicked : ' + this)
+      mapObject.setFocus({
+        scale: 1, // Reset zoom to default
+        x: 0.5, // Center X-coordinate
+        y: 0.5, // Center Y-coordinate
+        animate: true
+      });
+    });
+
+    const svg = document.querySelector('#map svg');
+    const g = document.querySelector('#map svg g');
+    g.setAttribute("transform", "scale(0.85) translate(0, 150)");
+
+  });
+});
+
+const courses = document.querySelector('.courses');
+const newCourseContainer = document.createElement('div')
+
+
+
+$(function() {
+  $.getJSON('http://127.0.0.1:8000/api/course_data/', function(data) {
+    console.log(`courses data: ${JSON.stringify(data)}`);
+    
+    var coursesContainer = $('.courses');
+    
+    data.forEach(function(course) {
+      var courseDiv = $('<div>').addClass('course');
+      courseDiv.append($('<h3>').text(course.course_name));
+      courseDiv.append($('<p>').text('Institution: ' + course.institution_name));
+      courseDiv.append($('<p>').text('Location: ' + course.institution_location));
+      courseDiv.append($('<p>').text('Type of course: ' + course.type_of_course));
+      courseDiv.append($('<p>').text('Thematic Focus: ' + course.thematic_focus));
+      courseDiv.append($('<p>').text('Target population: ' + course.target_population));
+      courseDiv.append($('<p>').text('Scope: ' + course.scope));
+      courseDiv.append($('<p>').text('Objective of training: ' + course.objective_of_training));
+      courseDiv.append($('<p>').text('Target audience: ' + course.target_audience));
+      courseDiv.append($('<p>').text('Teaching mechanism: ' + course.teaching_mechanism));
+      courseDiv.append($('<p>').text('Teaching approach: ' + course.teaching_approach));
+      courseDiv.append($('<p>').text('Frequency of Training: ' + course.frequency_of_training));
+      courseDiv.append($('<p>').text('Funding Schemes: ' + course.funding_schemes));
+      courseDiv.append($('<p>').text('Sustainibility factors: ' + course.sustainibility_factors));
+      courseDiv.append($('<p>').text('Key Challenges: ' + course.key_challenges));
+      
+      coursesContainer.append(courseDiv);
+    });
   });
 });

@@ -51,4 +51,3 @@ class CourseDataList(generics.ListAPIView):
             
 
         return queryset
-

@@ -131,9 +131,30 @@ body {
   flex-direction: row;
 }
 
+.map-container {
+  width: 65%;
+  height: contain;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 #map {
   width: 65%;
-  height: 300px;
+}
+
+#map svg {
+  height: 100%;
+  width: 100%;
+}
+
+.map-text {
+  width: 30%;
+  justify-content: right;
+}
+
+.map-text h4 {
+  font-size: 20px;
 }
 
 #bargraph {
@@ -151,4 +172,40 @@ body {
 #piechart1, #piechart2, #piechart3 {
   width: 400px;
   height: auto;
+}
+
+.zoom_buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: right;
+  height: 400px;
+  width: 100%;
+  align-content: space-evenly;
+}
+
+.zoom_buttons button {
+  padding: 5px;
+  font-size: 1rem;
+  font-family: "IBM Plex Mono", monospace;
+  color: rgb(37, 98, 227);
+  font-weight: bold;
+  background-color: #CAF0F8;
+  border-radius: 5px;
+  transition: all 250ms ease-in;
+  width: 100px;
+}
+
+.zoom_buttons button:hover {
+  color: #CAF0F8;
+  background-color: rgb(37, 98, 227);
+}
+
+#zoom-RESET {
+  color: #CAF0F8;
+  background-color: rgb(37, 98, 227);
+}
+
+#zoom-RESET:hover {
+  color: rgb(37, 98, 227);
+  background-color: #CAF0F8;
 }/*# sourceMappingURL=style.css.map */

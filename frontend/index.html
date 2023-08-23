@@ -37,8 +37,23 @@
     </div>
     <div id="stats_page_wrapper">
         <div id="stats_page_card">
-            <div class="row-1">
-                <div id="map"></div>
+            <h2>Number of courses/trainings offered per country</h2>
+            <div class="row-1">                
+                <div class="map-container">
+                    <div class="map-text">                        
+                        <h4>Select a continent to zoom-in to</h4>
+                        <div class="zoom_buttons">
+                            <button id="zoom-NA">North America</button>
+                            <button id="zoom-SA">South America</button>
+                            <button id="zoom-EU">Europe</button>
+                            <button id="zoom-AF">Africa</button>
+                            <button id="zoom-AU">Australia</button>
+                            <button id="zoom-AS">Asia</button>
+                            <button id="zoom-RESET">Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div id="map"></div>
+                </div>
                 <div id="bargraph"></div>
             </div>
             <div class="row-2">
@@ -57,6 +72,9 @@
             <p>To browse or search: simply use the filter options on the right-hand side. Alternatively, you can enter keyword/s in the searchbox.</p>
         </div>
         <div class="col-2"></div>
+    </div>
+    <div class="courses">
+        
     </div>
     <script src="./js/main.js"></script>
 </body>
