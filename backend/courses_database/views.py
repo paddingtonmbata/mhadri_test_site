@@ -15,11 +15,25 @@ def country_course_count(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
+def teaching_mechanism_counts(request):
+    teaching_mechanism_counts = CourseData.objects.values('teaching_mechanism').annotate(count=Count('id'))
+    response_data = {
+        'labels': [item['teaching_mechanism'] for item in teaching_mechanism_counts],
+        'data': [item['count'] for item in teaching_mechanism_counts]
+    }
+    return Response(response_data)
+
+@api_view(['GET'])
 def country_chloropleth(request):
     countries_with_counts = Country.objects.annotate(course_count=Count('coursedata'))
     countries_data = [{f'{country.country_code}': country.course_count} for country in countries_with_counts]
     return Response(countries_data)
-        
+
+@api_view(['GET'])
+def country(request, pk):
+    country = Country.objects.get(pk=pk)
+    serializer = CountrySerializer(country, many=False)
+    return Response(serializer.data)
 
 class CourseDataList(generics.ListAPIView):
     serializer_class = CourseDataSerializer
@@ -51,3 +65,12 @@ class CourseDataList(generics.ListAPIView):
             
 
         return queryset
+    
+@api_view(['GET'])
+def type_of_course_counts(request):
+    type_of_course_counts = CourseData.objects.values('type_of_course').annotate(count=Count('id'))
+    response_data = {
+        'labels': [item['type_of_course'] for item in type_of_course_counts],
+        'data': [item['count'] for item in type_of_course_counts]
+    }
+    return Response(response_data)

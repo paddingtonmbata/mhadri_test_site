@@ -100,8 +100,12 @@ body {
   width: 35%;
   padding-top: 15px;
 }
+.heading {
+  font-size: 44px;
+}
 .text p {
   margin: 10px 0px 0px 5px;
+  font-size: 17px;
 }
 
 .landing-page-content .row-1 .text .heading {
@@ -121,7 +125,7 @@ body {
 #stats_page_wrapper {
   height: 100vh;
   width: 100vw;
-  padding: 2% 2.5%;
+  padding: 20px;
 }
 
 #stats_page_card {
@@ -133,12 +137,14 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  padding: 15px;
 }
 
 #stats_page_card .row-1 {
   width: 100%;
   display: flex;
   flex-direction: row;
+  justify-content: space-evenly;
 }
 
 .map-container {
@@ -214,4 +220,47 @@ body {
 #zoom-RESET:hover {
   color: rgb(37, 98, 227);
   background-color: $main-bg-color;
+}
+
+.courses {
+  width: 100%;
+  padding: 100px 50px 50px 50px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.course {
+  padding: 20px;
+  border-radius: 17px;
+  width: 100%;
+  box-shadow: 0 0 20px -3px rgba(0, 0, 0, 0.25);
+  margin-top: 15px;
+}
+
+.course .row-1 {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.course-title-container h3 {
+  font-size: 31px;
+}
+
+.course-title-container p {
+  font-size: 28px;
+}
+
+.course .row-1 p, .course .row-2 p {
+  font-size: 22px;
+}
+
+.course .row-1 div {
+  width: 49%;
+}
+
+.course .row-1, .course .row-2 {
+  margin: 10px 0;
 }
