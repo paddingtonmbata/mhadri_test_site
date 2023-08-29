@@ -32,7 +32,7 @@
                 </div>
             </div>
             <div class="row-2">
-                <img id="down_nav_arrow" src="./images/down_arrow.webp" alt="\/">
+                <i class="fa-solid fa-angle-down fa-bounce" id="down_nav_arrow"></i>
             </div>
         </div>
     </div>
@@ -71,13 +71,24 @@
 
             <p>The courses are categorized by type, instititution location, teaching mechanism, target audience, and thematic focus. The map reflects the countries where the courses and trainings are implemented.</p>
 
-            <p>To browse or search: simply use the filter options on the right-hand side. Alternatively, you can enter keyword/s in the searchbox.</p>
+            <p><strong>To browse or search:</strong> simply use the filter options on the right-hand side. Alternatively, you can enter keyword/s in the searchbox.</p>
+            <div id="filtermap"></div>
         </div>
-        <div class="col-2"></div>
+        <div class="col-2">
+            <div class="filter-by">
+                <h2>Filter By</h2>
+                <div class="filters">
+                    <div>
+                        <button><i class="fa-solid fa-angle-down"></i> Type of Course</button>
+                    </div>
+                </div>
+            </div>
+            <div class="search"></div>
+        </div>
     </div>
     <div class="courses">
         
     </div>
-    <script src="./js/main.js"></script>
+    <script src="./js/main_.js"></script>
 </body>
 </html>

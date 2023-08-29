@@ -1,7 +1,12 @@
 const down_nav_arrow = document.querySelector("#down_nav_arrow");
 const stats_page_wrapper = document.querySelector("#stats_page_wrapper");
 
-
+down_nav_arrow.addEventListener("mouseover", () => {
+  down_nav_arrow.classList.remove('fa-bounce');
+});
+down_nav_arrow.addEventListener("mouseout", () => {
+  down_nav_arrow.classList.add('fa-bounce');
+});
 down_nav_arrow.addEventListener("click", () => {
     stats_page_wrapper.scrollIntoView({ behavior: "smooth"});
 });
@@ -81,31 +86,6 @@ fetch('http://127.0.0.1:8000/api/country_course_count/')
   .catch(error => console.error('Error fetching data:', error));
 
 //pie charts
-const p1_options = {
-  series: [51, 22, 100],
-  labels: ["Online", "Both", "Face to Face"],
-  chart: {
-    type: "donut",
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  legend: {
-    position: 'right',
-    height: 200
-  },
-  responsive: [{
-    breakpoint: 480,
-    options: {
-      chart: {
-        width: '100%'
-      },
-      legend: {
-        position: 'bottom'
-      }
-    }
-  }]
-};
 $(function() {
   $.getJSON('http://127.0.0.1:8000/api/teaching_mechanism_counts/', function(data) {
     const piechart1 = new ApexCharts(document.querySelector("#piechart1"), {
@@ -150,7 +130,7 @@ $(function() {
         },
         legend: {
           position: 'right',
-          height: 200
+          height: 250
         },
         responsive: [{
           breakpoint: 480,
@@ -167,34 +147,6 @@ $(function() {
       piechart2.render();
     });
 });
-const p3_options = {
-  series: [51, 22, 100],
-  labels: ["Online", "Both", "Face to Face"],
-  chart: {
-    type: "donut",
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  legend: {
-    position: 'right',
-    height: 200
-  },
-  responsive: [{
-    breakpoint: 480,
-    options: {
-      chart: {
-        width: '100%'
-      },
-      legend: {
-        position: 'bottom'
-      }
-    }
-  }]
-};
-const piechart3 = new ApexCharts(document.querySelector("#piechart3"), p3_options);
-piechart3.render();
-
 let mapObject;
 
 $(function() {
@@ -237,62 +189,6 @@ $(function() {
       }
     });
 
-
-    // $('#zoom-NA').click(function() {
-    //   mapObject.zoomIn({
-    //     region: 'NA', // North America ISO code
-    //     animate: true
-    //   });
-    // });
-
-    // $('#zoom-SA').click(function() {
-    //   mapObject.setFocus({
-    //     region: 'SA', // South America ISO code
-    //     animate: true
-    //   });
-    // });
-
-    // $('#zoom-EU').click(function() {
-    //   mapObject.setFocus({
-    //     region: 'EU', // Europe ISO code
-    //     animate: true
-    //   });
-    // });
-
-    // $('#zoom-AF').click(function() {
-    //   mapObject.setFocus({
-    //     region: 'AF', // Africa ISO code
-    //     animate: true
-    //   });
-    // });
-
-    // $('#zoom-AU').click(function() {
-    //   console.log('button clicked : ' + this)
-    //   mapObject.setFocus({
-    //     region: 'AU', // Australia ISO code
-    //     animate: true
-    //   });
-    // });
-
-    // $('#zoom-AS').click(function() {
-    //   console.log('button clicked : ' + this)
-    //   mapObject.setFocus({
-    //     region: 'AS', // Asia ISO code
-    //     animate: true
-    //   });
-    // });
-
-    // $('#zoom-RESET').click(function() {
-    //   console.log('button clicked : ' + this)
-    //   mapObject.setFocus({
-    //     scale: 1, // Reset zoom to default
-    //     x: 0.5, // Center X-coordinate
-    //     y: 0.5, // Center Y-coordinate
-    //     animate: true
-    //   });
-    // });
-
-    const svg = document.querySelector('#map svg');
     const g = document.querySelector('#map svg g');
     g.setAttribute("transform", "scale (1.1685786825480715) translate (45.04582672908927,0)");
 
