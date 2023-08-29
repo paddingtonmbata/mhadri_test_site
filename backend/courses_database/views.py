@@ -74,3 +74,9 @@ def type_of_course_counts(request):
         'data': [item['count'] for item in type_of_course_counts]
     }
     return Response(response_data)
+
+@api_view(['GET'])
+def courses_by_country(request, country_code):
+    courses = CourseData.objects.filter(institution_location__country_code=country_code)
+    serializer = CourseDataSerializer(courses, many=True)
+    return Response(serializer.data)

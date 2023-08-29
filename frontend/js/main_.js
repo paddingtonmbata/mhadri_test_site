@@ -115,22 +115,108 @@
         });
       piechart.render();
     }
+    function createFilterMap(id) {
+      mapObject = $(id).vectorMap({
+        map: 'world_mill',
+        backgroundColor: 'transparent',
+        zoomOnScroll: true,
+        onRegionTipShow: function(e, el, code) {
+          var countryName = $(id).vectorMap('get', 'mapObject').getRegionName(code);
+          var courseCount = mapData[code];
+          if (courseCount) {
+            el.html(countryName + ' - ' + courseCount);
+          } else {
+            el.html(countryName + ' - O');
+          }
+        },
+        onRegionClick: async function(event, code) {
+          // Fetch courses from the clicked country
+          try {
+            // Remove the previously highlighted region
+            $('.jvectormap-region.active').removeClass('active');
+            
+            // Add the active class to the clicked region
+            $(event.target).addClass('active');
+
+            const courseResponse = await fetch(`127.0.0.1:8000/api/courses_by_country/${code}/`);
+            const data = await courseResponse.json();
+
+            const coursesContainer = $('.courses');
+            const loadingButton = $('#loading-button');
+
+            coursesContainer.empty();
+            loadingButton.show();
+
+            data.forEach(async course => {
+                const courseDiv = $('<div>').addClass('course');
+                
+                try {
+                const countryResponse = await fetch(`http://127.0.0.1:8000/api/country/${course.institution_location}`);
+                const countryData = await countryResponse.json();
+                
+                loadingButton.hide();
+                
+                const courseTitleDiv = $(document.createElement('div')).addClass('course-title-container');
+                const courseRowOne = $(document.createElement('div')).addClass('row-1');
+                const courseColOne = $(document.createElement('div')).addClass('col-1');
+                const courseColTwo = $(document.createElement('div')).addClass('col-2');
+                const courseRowTwo = $(document.createElement('div')).addClass('row-2');
+                
+                courseTitleDiv.append($('<h3>').html(`<strong><a href="${course.source}"><i class="fa fa-link" aria-hidden="true"></i></a> ${course.institution_name}</strong>`));
+                courseTitleDiv.append($('<p>').html(`${countryData.country_name}`));
+                courseDiv.append(courseTitleDiv);
+                
+                courseColOne.append($('<p>').html('<strong> Type of course: </strong> ' + course.type_of_course));
+                courseColOne.append($('<p>').html('<strong> Thematic Focus: </strong> ' + course.thematic_focus));
+                courseColOne.append($('<p>').html('<strong> Target audience: </strong> ' + course.target_audience));
+                courseColOne.append($('<p>').html('<strong> Target population: </strong> ' + course.target_population));
+                courseColOne.append($('<p>').html('<strong> Objective of training: </strong> ' + course.objective_of_training));
+                courseColOne.append($('<p>').html('<strong> Teaching mechanism: </strong> ' + course.teaching_mechanism));
+                
+                courseColTwo.append($('<p>').html('<strong> Teaching approach: </strong> ' + course.teaching_approach));
+                courseColTwo.append($('<p>').html('<strong> Frequency of Training: </strong> ' + course.frequency_of_training));
+                courseColTwo.append($('<p>').html('<strong> Funding Schemes: </strong> ' + course.funding_schemes));
+                courseColTwo.append($('<p>').html('<strong> Sustainibility factors: </strong> ' + course.sustainibility_factors));
+                courseColTwo.append($('<p>').html('<strong> Key Challenges: </strong> ' + course.key_challenges));
+                
+                courseRowOne.append(courseColOne);
+                courseRowOne.append(courseColTwo);
+                courseDiv.append(courseRowOne);
+                
+                courseRowTwo.append($('<p>').html('<strong> Scope: </strong> ' + course.scope));
+                courseDiv.append(courseRowTwo);
+                
+                } catch (error) {
+                console.error('Error fetching country data:', error);
+                loadingButton.text('Error fetching data');
+                }
+            
+                coursesContainer.append(courseDiv);
+            });
+          } catch (error) {
+            console.error(`Error fetching course data: ${error}`);
+          }
+        }
+      });
+      const g = document.querySelector(`${id} svg g`);
+      g.setAttribute("transform", "scale (1.1685786825480715) translate (45.04582672908927,0)");
+    }
   
-    function createMap(data, isChloropleth) {
+    function createMap(id, data) {
         console.log(`chloropleth data: ${JSON.stringify(data)}`);
       
         var mapData = {};
-        if (isChloropleth) {
-            for (var i = 0; i < data.length; i++) {
-            var countryCode = Object.keys(data[i])[0];
-            var courseCount = data[i][countryCode];
-            mapData[countryCode] = courseCount;
-            }
+        
+        for (var i = 0; i < data.length; i++) {
+        var countryCode = Object.keys(data[i])[0];
+        var courseCount = data[i][countryCode];
+        mapData[countryCode] = courseCount;
         }
-        mapObject = $('#map').vectorMap({
+        
+        mapObject = $(id).vectorMap({
           map: 'world_mill',
           backgroundColor: 'transparent',
-          zoomOnScroll: true,
+          zoomOnScroll: false,
           series: {
             regions: [{
               values: mapData,
@@ -141,9 +227,8 @@
               defaultFill: '#727272' 
             }]
           },
-          markers: [],
           onRegionTipShow: function(e, el, code) {
-            var countryName = $('#map').vectorMap('get', 'mapObject').getRegionName(code);
+            var countryName = $(id).vectorMap('get', 'mapObject').getRegionName(code);
             var courseCount = mapData[code];
             if (courseCount) {
               el.html(countryName + ' - ' + courseCount);
@@ -151,9 +236,6 @@
               el.html(countryName + ' - O');
             }
           },
-          onMarkerTipShow: function(event, label, index) {
-            label.html(markers[index].name + ': ' + mapData[markers[index].name]);
-          }
         });
       
         const g = document.querySelector('#map svg g');
@@ -180,8 +262,11 @@
   
     $(document).ready(function() {
       $.getJSON('http://127.0.0.1:8000/api/country_chloropleth/', function(data) {
-        createMap(data, true);
+        createMap('#map',data, true);
       });
+    });
+    $(document).ready(function() {
+      createFilterMap('#filtermap');
     });
   
     // Dynamic Dashboard Implementation
@@ -246,6 +331,10 @@
     const coursesDiv = $('.courses');
     const loadingButton = $('<button>').text('Loading...').prop('disabled', true);
     coursesDiv.append(loadingButton);
+
+    $(document).ready(function () {
+
+    });
   
     fetchAndDisplayCourses();
   

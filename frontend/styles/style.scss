@@ -150,13 +150,13 @@ body {
   justify-content: space-evenly;
 }
 
-.map-container {
-  width: 65%;
-  height: contain;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
+// .map-container {
+//   width: 65%;
+//   height: contain;
+//   display: flex;
+//   flex-direction: row;
+//   justify-content: space-between;
+// }
 #map {
   width: 65%;
 }
@@ -236,4 +236,18 @@ body {
 
 .course .row-1, .course .row-2 {
   margin: 10px 0;
+}
+
+.filtering_page {
+  width: 100vw;
+}
+#filtermap {
+  width: 65%;
+  min-height: 600px;
+}
+
+
+#filtermap svg {
+  height: 100%;
+  width: 100%;
 }
