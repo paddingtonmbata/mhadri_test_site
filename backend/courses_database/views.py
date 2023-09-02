@@ -56,13 +56,8 @@ class CourseDataList(generics.ListAPIView):
                 Q(scope__icontains=search_term) |
                 Q(objective_of_training__icontains=search_term) |
                 Q(teaching_approach__icontains=search_term) |
-                Q(frequency_of_training__icontains=search_term)
-            )
-        elif country_name:
-            queryset = queryset.filter(institution_location__country_name=country_name)        
-        elif institution_name:
-            queryset = queryset.filter(institution_name=institution_name)
-            
+                Q(institution_location__icontains=search_term)
+            )            
 
         return queryset
     
@@ -80,3 +75,21 @@ def courses_by_country(request, country_code):
     courses = CourseData.objects.filter(institution_location__country_code=country_code)
     serializer = CourseDataSerializer(courses, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def thematic_focus_counts(request):
+    thematic_focus_counts = CourseData.objects.values('thematic_focus').annotate(count=Count('id'))
+    response_data = {
+        'labels': [item['thematic_focus'] for item in thematic_focus_counts],
+        'data': [item['count'] for item in thematic_focus_counts]
+    }
+    return Response(response_data)
+
+@api_view(['GET'])
+def target_audience_counts(request):
+    target_audience_counts = CourseData.objects.values('target_audience').annotate(count=Count('id'))
+    response_data = {
+        'labels': [item['target_audience'] for item in target_audience_counts],
+        'data': [item['count'] for item in target_audience_counts]
+    }
+    return Response(response_data)

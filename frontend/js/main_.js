@@ -3,8 +3,27 @@
     const down_nav_arrow = document.querySelector("#down_nav_arrow");
     const stats_page_wrapper = document.querySelector("#stats_page_wrapper");
     let mapObject;
-  
-    // Event Listeners
+    const expandButtons = document.querySelectorAll('.expand_filter_button');
+
+    // Event listeners
+
+    //toggles the expanded filters
+    expandButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const expandedFilter = button.nextElementSibling;
+            const icon = button.querySelector('i');
+            if (expandedFilter.style.display === 'block') {
+                expandedFilter.style.display = 'none';
+                icon.classList.remove('fa-angle-up');
+                icon.classList.add('fa-angle-down');
+            } else {
+                expandedFilter.style.display = 'block';
+                icon.classList.remove('fa-angle-down');
+                icon.classList.add('fa-angle-up');
+            }
+        });
+    });
+
     down_nav_arrow.addEventListener("mouseover", () => {
       down_nav_arrow.classList.remove('fa-bounce');
     });
@@ -86,13 +105,29 @@
       chart.render();
     }
   
-    function createPieChart(elementId, data, type, legend_height) {
+    function createPieChart(elementId, data, type, legend_height, pieColor, title) {
         console.log(`create piechart: ${JSON.stringify(data)}`)
       const piechart = new ApexCharts(document.querySelector(elementId), {
         series: data.data,
         labels: data.labels,
         chart: {
             type: type,
+        },
+        title: {
+          text: title,
+          align: 'center',
+          style: {
+            fontSize: '14px',
+            fontFamily: 'IBM Plex Mono, monospace'
+          }
+        },
+        theme: {
+          monochrome: {
+            enabled: true,
+            color: pieColor,
+            shadeTo: 'light',
+            shadeIntensity: 0.9
+          }
         },
         dataLabels: {
             enabled: false,
@@ -119,14 +154,21 @@
       mapObject = $(id).vectorMap({
         map: 'world_mill',
         backgroundColor: 'transparent',
-        zoomOnScroll: true,
+        zoomOnScroll: false,
         onRegionTipShow: function(e, el, code) {
           var countryName = $(id).vectorMap('get', 'mapObject').getRegionName(code);
-          var courseCount = mapData[code];
-          if (courseCount) {
-            el.html(countryName + ' - ' + courseCount);
-          } else {
-            el.html(countryName + ' - O');
+          el.html(countryName);
+        },
+        regionStyle: {
+          initial: {
+            fill: '#727272',
+            'fill-opacity': 1,
+          },
+          hover: {
+            'fill-opacity': 0.6
+          },
+          selected: {
+            fill: 'white'
           }
         },
         onRegionClick: async function(event, code) {
@@ -136,9 +178,9 @@
             $('.jvectormap-region.active').removeClass('active');
             
             // Add the active class to the clicked region
-            $(event.target).addClass('active');
+            //$(event.target).addClass('active');
 
-            const courseResponse = await fetch(`127.0.0.1:8000/api/courses_by_country/${code}/`);
+            const courseResponse = await fetch(`http://127.0.0.1:8000/api/courses_by_country/${code}`);
             const data = await courseResponse.json();
 
             const coursesContainer = $('.courses');
@@ -146,6 +188,7 @@
 
             coursesContainer.empty();
             loadingButton.show();
+            
 
             data.forEach(async course => {
                 const courseDiv = $('<div>').addClass('course');
@@ -193,13 +236,16 @@
             
                 coursesContainer.append(courseDiv);
             });
+
+            coursesContainer.get(0).scrollIntoView({ behavior: "smooth" });
+
           } catch (error) {
             console.error(`Error fetching course data: ${error}`);
           }
         }
       });
       const g = document.querySelector(`${id} svg g`);
-      g.setAttribute("transform", "scale (1.1685786825480715) translate (45.04582672908927,0)");
+      g.setAttribute("transform", "scale(1.1311111111111112) translate(-1.0050899209180199e-13, 0.6684556298980835)");
     }
   
     function createMap(id, data) {
@@ -236,6 +282,7 @@
               el.html(countryName + ' - O');
             }
           },
+          
         });
       
         const g = document.querySelector('#map svg g');
@@ -252,11 +299,47 @@
   
     $(document).ready(function() {
       $.getJSON('http://127.0.0.1:8000/api/teaching_mechanism_counts/', function(data) {
-        createPieChart("#piechart1", data, 'donut', 200);
+        createPieChart("#piechart1", data, 'donut', 200, '#0071A4', 'Teaching mechanisms');
+        const efTeachingUl = document.querySelector('.ef-teaching');
+        for (let i = 0; i < data.labels.length; i++) {
+          const label = data.labels[i];
+          const count = data.data[i];
+          const listItem = document.createElement('li');
+          listItem.textContent = `${label} (${count})`;
+          efTeachingUl.appendChild(listItem);
+        }
       });
   
       $.getJSON('http://127.0.0.1:8000/api/type_of_course_counts/', function(data) {
-        createPieChart("#piechart2", data, 'donut', 250);
+        createPieChart("#piechart2", data, 'donut', 250, '#fc0356', 'Type of courses');
+        const efTypeUl = document.querySelector('.ef-type');
+        for (let i = 0; i < data.labels.length; i++) {
+          const label = data.labels[i];
+          const count = data.data[i];
+          const listItem = document.createElement('li');
+          listItem.textContent = `${label} (${count})`;
+          efTypeUl.appendChild(listItem);
+        }
+      });
+      $.getJSON('http://127.0.0.1:8000/api/thematic_focus_counts/', function(data) {
+        const efThematicUl = document.querySelector('.ef-thematic');
+        for (let i = 0; i < data.labels.length; i++) {
+          const label = data.labels[i];
+          const count = data.data[i];
+          const listItem = document.createElement('li');
+          listItem.textContent = `${label} (${count})`;
+          efThematicUl.appendChild(listItem);
+        }
+      });
+      $.getJSON('http://127.0.0.1:8000/api/target_audience_counts/', function(data) {
+        const efTargetUl = document.querySelector('.ef-target');
+        for (let i = 0; i < data.labels.length; i++) {
+          const label = data.labels[i];
+          const count = data.data[i];
+          const listItem = document.createElement('li');
+          listItem.textContent = `${label} (${count})`;
+          efTargetUl.appendChild(listItem);
+        }
       });
     });
   

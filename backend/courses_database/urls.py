@@ -9,4 +9,6 @@ urlpatterns = [
     path('country/<int:pk>', views.country, name="country"),
     path('courses_by_country/<str:country_code>', views.courses_by_country, name="courses_by_country"),
     path('type_of_course_counts/', views.type_of_course_counts, name='type_of_course_counts'),
+    path('thematic_focus_counts/', views.thematic_focus_counts, name='thematic_focus_counts'),
+    path('target_audience_counts/', views.target_audience_counts, name='target_audience_counts'),
 ]

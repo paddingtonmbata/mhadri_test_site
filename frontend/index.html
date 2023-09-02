@@ -52,23 +52,50 @@
     </div>
     <div class="filtering_page">
         <div class="col-1">
-            <h2>More Filtering</h2>
+            <div class="text">
+                <h2>More Filtering</h2>
+                <br><br>
 
-            <p>The courses are categorized by type, instititution location, teaching mechanism, target audience, and thematic focus. The map reflects the countries where the courses and trainings are implemented.</p>
+                <p>The courses are categorized by type, instititution location, teaching <br/> mechanism, target audience, and thematic focus. The map reflects the countries<br/> where the courses and trainings are implemented.</p>
+                <br><br>
 
-            <p><strong>To browse or search:</strong> simply use the filter options on the right-hand side. Alternatively, you can enter keyword/s in the searchbox.</p>
+                <p><strong>To browse or search:</strong> simply use the filter options on the right-hand side or click on the map below. Alternatively, you can enter keyword/s in the searchbox.</p>
+            </div>
+            <br>
+            <br>
             <div id="filtermap"></div>
         </div>
         <div class="col-2">
             <div class="filter-by">
                 <h2>Filter By</h2>
-                <div class="filters">
-                    <div>
-                        <button><i class="fa-solid fa-angle-down"></i> Type of Course</button>
-                    </div>
-                </div>
+                <ul class="filters">
+                    <li class="filter">
+                        <span class="expand_filter_button"><i class="expand_filter fa-solid fa-angle-down"></i> Type of Course</span>
+                        <ul class="expanded-filter ef-type">
+                        </ul>
+                    </li>
+                    <li class="filter">
+                        <span class="expand_filter_button"><i class="expand_filter fa-solid fa-angle-down"></i> Teaching mechanism</span>
+                        <ul class="expanded-filter ef-teaching">
+                        </ul>
+                    </li>
+                    <li class="filter">
+                        <span class="expand_filter_button"><i class="expand_filter fa-solid fa-angle-down"></i> Target Audience</span>
+                        <ul class="expanded-filter ef-target">
+                        </ul>
+                    </li>
+                    <li class="filter">
+                        <span class="expand_filter_button"><i class="expand_filter fa-solid fa-angle-down"></i> Thematic focus</span>
+                        <ul class="expanded-filter ef-thematic">
+                        </ul>
+                    </li>
+                </ul>
+                <!-- Reminder to create a variable that takes the type of course array from the pie chart function -->
             </div>
-            <div class="search"></div>
+            <form class="search">
+                <input type="text" name="searchbar" id="searchbar" placeholder="Search courses...">
+                <button name="search_submit" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
         </div>
     </div>
     <div class="courses">
