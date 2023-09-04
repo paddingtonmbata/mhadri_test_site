@@ -53,8 +53,14 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
+API_KEY = '2c5aa8423852a993f670fe8e05570c627c3980654ce03e38378bbbd937030322'
+
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",  
+    "http://127.0.0.1:5500",
+]
+
+CORS_ALLOW_HEADERS = [
+    'X-API-KEY',
 ]
 
 ROOT_URLCONF = 'db.urls'
@@ -134,3 +140,5 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+

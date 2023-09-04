@@ -1,3 +1,4 @@
+from db import settings
 from rest_framework import generics
 from django.db.models import Q
 from .models import *
@@ -5,7 +6,12 @@ from .serializers import *
 from django.db.models import Count
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from .mixins import ApiKeyRequiredMixin
 
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+
+@cache_page(60 * 15)
 @api_view(['GET'])
 def country_course_count(request):
     countries_with_counts = Country.objects.annotate(course_count=Count('coursedata')).filter(course_count__gt=0)
@@ -14,6 +20,7 @@ def country_course_count(request):
     serializer = CountryCourseCountSerializer(countries_data, many=True)
     return Response(serializer.data)
 
+@cache_page(60 * 15)
 @api_view(['GET'])
 def teaching_mechanism_counts(request):
     teaching_mechanism_counts = CourseData.objects.values('teaching_mechanism').annotate(count=Count('id'))
@@ -22,7 +29,7 @@ def teaching_mechanism_counts(request):
         'data': [item['count'] for item in teaching_mechanism_counts]
     }
     return Response(response_data)
-
+@cache_page(60 * 15)
 @api_view(['GET'])
 def country_chloropleth(request):
     countries_with_counts = Country.objects.annotate(course_count=Count('coursedata')).filter(course_count__gt=0)
@@ -35,32 +42,39 @@ def country(request, pk):
     serializer = CountrySerializer(country, many=False)
     return Response(serializer.data)
 
-class CourseDataList(generics.ListAPIView):
+class CourseDataList(ApiKeyRequiredMixin, generics.ListAPIView):
     serializer_class = CourseDataSerializer
 
     def get_queryset(self):
-        queryset = CourseData.objects.all()
-        country_name = self.request.query_params.get('country')
-        institution_name = self.request.query_params.get('institution')
-        teaching_mechanism = self.request.query_params.get('teaching_mechanism')
-        target_population = self.request.query_params.get('target_population')
-        target_audience = self.request.query_params.get('target_audience')
-        type_of_course = self.request.query_params.get('type_of_course')
-        search_term = self.request.query_params.get('search')
+        # Build a cache key based on filter parameters
+        cache_key = f"course_data_{self.request.query_params.urlencode()}"
 
-        if search_term:
-            queryset = queryset.filter(
-                Q(type_of_course__icontains=search_term) |
-                Q(thematic_focus__icontains=search_term) |
-                Q(target_population__icontains=search_term) |
-                Q(scope__icontains=search_term) |
-                Q(objective_of_training__icontains=search_term) |
-                Q(teaching_approach__icontains=search_term) |
-                Q(institution_location__icontains=search_term)
-            )            
+        # Try to fetch the queryset from the cache
+        queryset = cache.get(cache_key)
+
+        if queryset is None:
+            # If not in cache, perform the original query and cache the result
+            queryset = CourseData.objects.all()
+
+            if 'search' in self.request.query_params:
+                search_term = self.request.query_params['search']
+                queryset = queryset.filter(
+                    Q(type_of_course__icontains=search_term) |
+                    Q(teaching_mechanism__icontains=search_term) |
+                    Q(thematic_focus__icontains=search_term) |
+                    Q(target_population__icontains=search_term) |
+                    Q(scope__icontains=search_term) |
+                    Q(objective_of_training__icontains=search_term) |
+                    Q(teaching_approach__icontains=search_term) |
+                    Q(institution_location__country_name__icontains=search_term)
+                )
+
+            # Cache the queryset for a specific duration (e.g., 15 minutes)
+            cache.set(cache_key, queryset, 60 * 15)  # Cache for 15 minutes
 
         return queryset
     
+@cache_page(60 * 15)
 @api_view(['GET'])
 def type_of_course_counts(request):
     type_of_course_counts = CourseData.objects.values('type_of_course').annotate(count=Count('id'))
@@ -70,12 +84,14 @@ def type_of_course_counts(request):
     }
     return Response(response_data)
 
+@cache_page(60 * 15)
 @api_view(['GET'])
 def courses_by_country(request, country_code):
     courses = CourseData.objects.filter(institution_location__country_code=country_code)
     serializer = CourseDataSerializer(courses, many=True)
     return Response(serializer.data)
 
+@cache_page(60 * 15)
 @api_view(['GET'])
 def thematic_focus_counts(request):
     thematic_focus_counts = CourseData.objects.values('thematic_focus').annotate(count=Count('id'))
@@ -85,6 +101,7 @@ def thematic_focus_counts(request):
     }
     return Response(response_data)
 
+@cache_page(60 * 15)
 @api_view(['GET'])
 def target_audience_counts(request):
     target_audience_counts = CourseData.objects.values('target_audience').annotate(count=Count('id'))
