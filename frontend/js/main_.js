@@ -348,70 +348,6 @@
     $(document).ready(function() {
       createFilterMap('#filtermap');
     });
-  
-    // async function fetchAndDisplayCourses() {
-    //   try {
-    //     const response = await fetch('http://127.0.0.1:8000/api/course_data/', {
-    //       method: 'GET',
-    //       headers: {
-    //         'X-API-KEY': '2c5aa8423852a993f670fe8e05570c627c3980654ce03e38378bbbd937030322'
-    //       },
-    //     });
-    //     const data = await response.json();
-    //     console.log(`data: ${JSON.stringify(data)}`)
-        
-    //     const coursesContainer = $('.courses');
-    //     data.forEach(async course => {
-    //         const courseDiv = $('<div>').addClass('course');
-            
-    //         try {
-    //         const countryResponse = await fetch(`http://127.0.0.1:8000/api/country/${course.institution_location}`);
-    //         const countryData = await countryResponse.json();
-            
-    //         loadingButton.hide();
-            
-    //         const courseTitleDiv = $(document.createElement('div')).addClass('course-title-container');
-    //         const courseRowOne = $(document.createElement('div')).addClass('row-1');
-    //         const courseColOne = $(document.createElement('div')).addClass('col-1');
-    //         const courseColTwo = $(document.createElement('div')).addClass('col-2');
-    //         const courseRowTwo = $(document.createElement('div')).addClass('row-2');
-            
-    //         courseTitleDiv.append($('<h3>').html(`<strong><a href="${course.source}"><i class="fa fa-link" aria-hidden="true"></i></a> ${course.institution_name}</strong>`));
-    //         courseTitleDiv.append($('<p>').html(`${countryData.country_name}`));
-    //         courseDiv.append(courseTitleDiv);
-            
-    //         courseColOne.append($('<p>').html('<strong> Type of course: </strong> ' + course.type_of_course));
-    //         courseColOne.append($('<p>').html('<strong> Thematic Focus: </strong> ' + course.thematic_focus));
-    //         courseColOne.append($('<p>').html('<strong> Target audience: </strong> ' + course.target_audience));
-    //         courseColOne.append($('<p>').html('<strong> Target population: </strong> ' + course.target_population));
-    //         courseColOne.append($('<p>').html('<strong> Objective of training: </strong> ' + course.objective_of_training));
-    //         courseColOne.append($('<p>').html('<strong> Teaching mechanism: </strong> ' + course.teaching_mechanism));
-            
-    //         courseColTwo.append($('<p>').html('<strong> Teaching approach: </strong> ' + course.teaching_approach));
-    //         courseColTwo.append($('<p>').html('<strong> Frequency of Training: </strong> ' + course.frequency_of_training));
-    //         courseColTwo.append($('<p>').html('<strong> Funding Schemes: </strong> ' + course.funding_schemes));
-    //         courseColTwo.append($('<p>').html('<strong> Sustainibility factors: </strong> ' + course.sustainibility_factors));
-    //         courseColTwo.append($('<p>').html('<strong> Key Challenges: </strong> ' + course.key_challenges));
-            
-    //         courseRowOne.append(courseColOne);
-    //         courseRowOne.append(courseColTwo);
-    //         courseDiv.append(courseRowOne);
-            
-    //         courseRowTwo.append($('<p>').html('<strong> Scope: </strong> ' + course.scope));
-    //         courseDiv.append(courseRowTwo);
-            
-    //         } catch (error) {
-    //         console.error('Error fetching country data:', error);
-    //         loadingButton.text('Error fetching data');
-    //         }
-        
-    //         coursesContainer.append(courseDiv);
-    //     });
-    //   } catch (error) {
-    //     console.error('Error fetching course data: ', error);
-    //     loadingButton.text('Error fetching data');
-    //   }
-    // }
 
     async function fetchAndDisplayCourses() {
       try {
@@ -445,7 +381,13 @@
     }
 
     function renderCourses(data) {
+
       const coursesContainer = $('.courses');
+      const loadingButton = $('#loading-button');
+
+      coursesContainer.empty();
+      loadingButton.show();
+
       data.forEach(async (course) => {
         const courseDiv = $('<div>').addClass('course');
 
@@ -490,13 +432,13 @@
           loadingButton.text('Error fetching data');
         }
       });
+        console.log('courses rendered!!!');
     }
 
     // Function to clear the cache (if needed)
     function clearCache() {
-      localStorage.removeItem('cachedCourses');
+      localStorage.clear();
     }
-
   
     const coursesDiv = $('.courses');
     const loadingButton = $('<button>').text('Loading...').prop('disabled', true);
@@ -504,93 +446,141 @@
 
     $(document).ready(function() {
       // Add an event listener for the form submission
-      $('.search').submit(function(event) {
+      $('.search').submit(async function(event) {
         event.preventDefault(); // Prevent the default form submission
 
         // Retrieve the search term from the input field
         const searchTerm = $('#searchbar').val();
+        console.log('searched something')
 
-        // Make an AJAX request to fetch courses using the search term
-        $.ajax({
-          url: 'http://127.0.0.1:8000/api/course_data/', // Replace with your API endpoint
-          method: 'GET',
-          data: {
-            search: searchTerm
-          },
-          headers: {
-            'X-API-KEY': '2c5aa8423852a993f670fe8e05570c627c3980654ce03e38378bbbd937030322'
-          },
-          success: function(data) {
-            // Handle the successful response and populate the courses div
-            const coursesContainer = $('.courses');
-            coursesContainer.empty(); // Clear previous results
-
-            // data.forEach(function(course) {
-            //   // Create and append course elements here
-            //   const courseDiv = $('<div>').addClass('course');
-            //   // Populate course details within courseDiv
-            //   // ...
-
-            //   coursesContainer.append(courseDiv);
-            // });
-            data.forEach(async course => {
-                const courseDiv = $('<div>').addClass('course');
-                
-                try {
-                  const countryResponse = await fetch(`http://127.0.0.1:8000/api/country/${course.institution_location}`);
-                  const countryData = await countryResponse.json();
-                  
-                  loadingButton.hide();
-                  
-                  const courseTitleDiv = $(document.createElement('div')).addClass('course-title-container');
-                  const courseRowOne = $(document.createElement('div')).addClass('row-1');
-                  const courseColOne = $(document.createElement('div')).addClass('col-1');
-                  const courseColTwo = $(document.createElement('div')).addClass('col-2');
-                  const courseRowTwo = $(document.createElement('div')).addClass('row-2');
-                  
-                  courseTitleDiv.append($('<h3>').html(`<strong><a href="${course.source}"><i class="fa fa-link" aria-hidden="true"></i></a> ${course.institution_name}</strong>`));
-                  courseTitleDiv.append($('<p>').html(`${countryData.country_name}`));
-                  courseDiv.append(courseTitleDiv);
-                  
-                  courseColOne.append($('<p>').html('<strong> Type of course: </strong> ' + course.type_of_course));
-                  courseColOne.append($('<p>').html('<strong> Thematic Focus: </strong> ' + course.thematic_focus));
-                  courseColOne.append($('<p>').html('<strong> Target audience: </strong> ' + course.target_audience));
-                  courseColOne.append($('<p>').html('<strong> Target population: </strong> ' + course.target_population));
-                  courseColOne.append($('<p>').html('<strong> Objective of training: </strong> ' + course.objective_of_training));
-                  courseColOne.append($('<p>').html('<strong> Teaching mechanism: </strong> ' + course.teaching_mechanism));
-                  
-                  courseColTwo.append($('<p>').html('<strong> Teaching approach: </strong> ' + course.teaching_approach));
-                  courseColTwo.append($('<p>').html('<strong> Frequency of Training: </strong> ' + course.frequency_of_training));
-                  courseColTwo.append($('<p>').html('<strong> Funding Schemes: </strong> ' + course.funding_schemes));
-                  courseColTwo.append($('<p>').html('<strong> Sustainibility factors: </strong> ' + course.sustainibility_factors));
-                  courseColTwo.append($('<p>').html('<strong> Key Challenges: </strong> ' + course.key_challenges));
-                  
-                  courseRowOne.append(courseColOne);
-                  courseRowOne.append(courseColTwo);
-                  courseDiv.append(courseRowOne);
-                  
-                  courseRowTwo.append($('<p>').html('<strong> Scope: </strong> ' + course.scope));
-                  courseDiv.append(courseRowTwo);
-                  
-                } catch (error) {
-                  console.error('Error fetching country data:', error);
-                  loadingButton.text('Error fetching data');
-                }
-            
-                coursesContainer.append(courseDiv);
-                coursesContainer.get(0).scrollIntoView({ behavior: "smooth" });
+        // Check if the data is cached
+        const cachedData = localStorage.getItem(`cachedSearchResults_${searchTerm}`);
+        if (cachedData) {
+          // Use cached data
+          const data = JSON.parse(cachedData);
+          renderCourses(data);
+          console.log('finished rendering courses')
+        } else {
+          // Make an AJAX request to fetch courses using the search term
+          try {
+            const response = await fetch('http://127.0.0.1:8000/api/course_data/', {
+              method: 'GET',
+              headers: {
+                'X-API-KEY': '2c5aa8423852a993f670fe8e05570c627c3980654ce03e38378bbbd937030322'
+              },
+              data: {
+                search: searchTerm
+              },
             });
+            const data = await response.json();
+            console.log(`no cached data but gonna cache:  ${JSON.stringify(data)}`);
 
-          },
-          error: function(error) {
-            console.error('Error fetching courses:', error);
+            // Cache the fetched data
+            localStorage.setItem(`cachedSearchResults_${searchTerm}`, JSON.stringify(data));
+
+            // Render the data
+            console.log('just before rendering courses')
+            renderCourses(data);
+            console.log(renderCourses)
+            console.log('after rendering courses')
+          } catch (error) {
+            console.error('Error fetching or rendering data: ', error);
+            loadingButton.text('Error fetching data');
           }
-        });
+        }
       });
     });
 
-  
+    // $(document).ready(function() {
+    //   // Add an event listener for the form submission
+    //   $('.search').submit(function(event) {
+    //     event.preventDefault(); // Prevent the default form submission
+
+    //     // Retrieve the search term from the input field
+    //     const searchTerm = $('#searchbar').val();
+
+    //     // Make an AJAX request to fetch courses using the search term
+    //     $.ajax({
+    //       url: 'http://127.0.0.1:8000/api/course_data/', // Replace with your API endpoint
+    //       method: 'GET',
+    //       data: {
+    //         search: searchTerm
+    //       },
+    //       headers: {
+    //         'X-API-KEY': '2c5aa8423852a993f670fe8e05570c627c3980654ce03e38378bbbd937030322'
+    //       },
+    //       success: function(data) {
+    //         // Handle the successful response and populate the courses div
+    //         const coursesContainer = $('.courses');
+    //         coursesContainer.empty(); // Clear previous results
+
+    //         // data.forEach(function(course) {
+    //         //   // Create and append course elements here
+    //         //   const courseDiv = $('<div>').addClass('course');
+    //         //   // Populate course details within courseDiv
+    //         //   // ...
+
+    //         //   coursesContainer.append(courseDiv);
+    //         // });
+    //         data.forEach(async course => {
+    //             const courseDiv = $('<div>').addClass('course');
+                
+    //             try {
+    //               const countryResponse = await fetch(`http://127.0.0.1:8000/api/country/${course.institution_location}`);
+    //               const countryData = await countryResponse.json();
+                  
+    //               loadingButton.hide();
+                  
+    //               const courseTitleDiv = $(document.createElement('div')).addClass('course-title-container');
+    //               const courseRowOne = $(document.createElement('div')).addClass('row-1');
+    //               const courseColOne = $(document.createElement('div')).addClass('col-1');
+    //               const courseColTwo = $(document.createElement('div')).addClass('col-2');
+    //               const courseRowTwo = $(document.createElement('div')).addClass('row-2');
+                  
+    //               courseTitleDiv.append($('<h3>').html(`<strong><a href="${course.source}"><i class="fa fa-link" aria-hidden="true"></i></a> ${course.institution_name}</strong>`));
+    //               courseTitleDiv.append($('<p>').html(`${countryData.country_name}`));
+    //               courseDiv.append(courseTitleDiv);
+                  
+    //               courseColOne.append($('<p>').html('<strong> Type of course: </strong> ' + course.type_of_course));
+    //               courseColOne.append($('<p>').html('<strong> Thematic Focus: </strong> ' + course.thematic_focus));
+    //               courseColOne.append($('<p>').html('<strong> Target audience: </strong> ' + course.target_audience));
+    //               courseColOne.append($('<p>').html('<strong> Target population: </strong> ' + course.target_population));
+    //               courseColOne.append($('<p>').html('<strong> Objective of training: </strong> ' + course.objective_of_training));
+    //               courseColOne.append($('<p>').html('<strong> Teaching mechanism: </strong> ' + course.teaching_mechanism));
+                  
+    //               courseColTwo.append($('<p>').html('<strong> Teaching approach: </strong> ' + course.teaching_approach));
+    //               courseColTwo.append($('<p>').html('<strong> Frequency of Training: </strong> ' + course.frequency_of_training));
+    //               courseColTwo.append($('<p>').html('<strong> Funding Schemes: </strong> ' + course.funding_schemes));
+    //               courseColTwo.append($('<p>').html('<strong> Sustainibility factors: </strong> ' + course.sustainibility_factors));
+    //               courseColTwo.append($('<p>').html('<strong> Key Challenges: </strong> ' + course.key_challenges));
+                  
+    //               courseRowOne.append(courseColOne);
+    //               courseRowOne.append(courseColTwo);
+    //               courseDiv.append(courseRowOne);
+                  
+    //               courseRowTwo.append($('<p>').html('<strong> Scope: </strong> ' + course.scope));
+    //               courseDiv.append(courseRowTwo);
+                  
+    //             } catch (error) {
+    //               console.error('Error fetching country data:', error);
+    //               loadingButton.text('Error fetching data');
+    //             }
+            
+    //             coursesContainer.append(courseDiv);
+    //             coursesContainer.get(0).scrollIntoView({ behavior: "smooth" });
+    //         });
+
+    //       },
+    //       error: function(error) {
+    //         console.error('Error fetching courses:', error);
+    //       }
+    //     });
+    //   });
+    // });  
     fetchAndDisplayCourses();
+
+    
+    clearCache()
   
   })();
   
