@@ -6,7 +6,6 @@
     const expandButtons = document.querySelectorAll('.expand_filter_button');
 
     // Event listeners
-
     //toggles the expanded filters
     expandButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -103,51 +102,124 @@
       const chart = new ApexCharts(document.querySelector("#bargraph"), options);
       chart.render();
     }
-  
-    function createPieChart(elementId, data, type, legend_height, pieColor, title) {
-      const piechart = new ApexCharts(document.querySelector(elementId), {
-        series: data.data,
-        labels: data.labels,
-        chart: {
-            type: type,
-        },
-        title: {
-          text: title,
-          align: 'center',
-          style: {
-            fontSize: '14px',
-            fontFamily: 'IBM Plex Mono, monospace'
-          }
-        },
-        theme: {
-          monochrome: {
-            enabled: true,
-            color: pieColor,
-            shadeTo: 'light',
-            shadeIntensity: 0.9
-          }
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        legend: {
-            position: 'right',
-            height: legend_height
-        },
-        responsive: [{
-            breakpoint: 480,
-            options: {
-            chart: {
-                width: '100%'
-            },
-            legend: {
-                position: 'bottom'
+// Assuming you have a chart instance globally defined, e.g., chart1 and chart2
+
+    async function createPieChart(chartId, data, chartType, legend_height, pieColor, title) {
+      const options = {
+          chart: {
+              type: chartType,
+              height: '369px',
+          },
+          series: data.data, // Set the series data from your fetched data
+          labels: data.labels,
+          dataLabels: {
+              enabled: false
+          },
+          legend: {
+              position: 'right',
+              height: legend_height
+          },
+          responsive: [{
+              breakpoint: 480,
+              options: {
+                  chart: {
+                      width: '100%'
+                  },
+                  legend: {
+                      position: 'bottom'
+                  }
+              }
+          }],
+          title: {
+              text: title,
+              align: 'center',
+              style: {
+                  fontSize: '14px',
+                  fontFamily: 'IBM Plex Mono, monospace'
+              }
+          },
+          theme: {
+            monochrome: {
+              enabled: true,
+              color: pieColor,
+              shadeTo: 'light',
+              shadeIntensity: 0.9
             }
-            }
-        }]
-        });
-      piechart.render();
+          },
+      };
+
+      // Check if the chart instance exists
+      if (typeof window[chartId] === 'undefined') {
+          // Create a new chart instance
+          window[chartId] = new ApexCharts(document.querySelector(chartId), options);
+          await window[chartId].render();
+      } else {
+          // Update the existing chart instance
+          await window[chartId].updateSeries(data.data, true); // Update series data
+          window[chartId].updateOptions(options); // Update chart options
+      }
     }
+
+  
+    // function createPieChart(elementId, data, type, legend_height, pieColor, title) {
+    //   const parentElement = $(elementId);
+    //   parentElement.empty()
+    //   console.log(`parent element: ${parentElement}`)
+    //   console.log(`${elementId} : \n ${JSON.stringify(data)}`);
+    //   const piechart = new ApexCharts(document.querySelector(elementId), {
+    //     series: data.data,
+    //     labels: data.labels,
+    //     chart: {
+    //         type: type,
+    //         height: '369px',
+    //     },
+    //     title: {
+    //       text: title,
+    //       align: 'center',
+    //       style: {
+    //         fontSize: '14px',
+    //         fontFamily: 'IBM Plex Mono, monospace'
+    //       }
+    //     },
+    //     theme: {
+    //       monochrome: {
+    //         enabled: true,
+    //         color: pieColor,
+    //         shadeTo: 'light',
+    //         shadeIntensity: 0.9
+    //       }
+    //     },
+    //     dataLabels: {
+    //         enabled: false,
+    //     },
+    //     legend: {
+    //         position: 'right',
+    //         height: legend_height
+    //     },
+    //     responsive: [{
+    //         breakpoint: 480,
+    //         options: {
+    //           chart: {
+    //               width: '100%'
+    //           },
+    //           legend: {
+    //               position: 'bottom'
+    //           }
+    //         }
+    //     }]
+    //     });
+    //   piechart.render();
+    //   // Check if the chart instance exists
+    //   if (typeof window[chartId] === 'undefined') {
+    //     // Create a new chart instance
+    //     window[elementId] = new ApexCharts(document.querySelector(chartId), options);
+    //     window[elementId].render();
+    //   } else {
+    //     // Update the existing chart instance
+    //     window[elementId].updateSeries(data.data); // Update series data
+    //     window[elementId].updateOptions(options); // Update chart options
+    //   }      
+    // }
     function createFilterMap(id) {
       mapObject = $(id).vectorMap({
         map: 'world_mill',
@@ -279,7 +351,78 @@
               el.html(countryName + ' - O');
             }
           },
-          
+          // when a country is clicked on the first map
+          onRegionClick: async function(event, code) {
+            console.log(`Clicked on: ${code}`);
+        
+            try {
+                // Fetch teaching mechanism counts
+                const teachingMechanismResponse = await fetch(`http://127.0.0.1:8000/api/teaching_mechanism_counts_by_code/${code}`);
+                const teachingMechanismData = await teachingMechanismResponse.json();
+                createPieChart("#piechart1", teachingMechanismData, 'donut', 200, '#0071A4', 'Teaching mechanisms');
+        
+                const efTeachingUl = document.querySelector('.ef-teaching');
+                efTeachingUl.innerHTML = ''; // Clear the list
+                for (let i = 0; i < teachingMechanismData.labels.length; i++) {
+                    const label = teachingMechanismData.labels[i];
+                    const count = teachingMechanismData.data[i];
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${label} (${count})`;
+                    efTeachingUl.appendChild(listItem);
+                }
+        
+                // Fetch type of course counts
+                const typeOfCourseResponse = await fetch(`http://127.0.0.1:8000/api/type_of_course_counts_by_code/${code}`);
+                const typeOfCourseData = await typeOfCourseResponse.json();
+                createPieChart("#piechart2", typeOfCourseData, 'donut', 250, '#fc0356', 'Type of courses');
+        
+                const efTypeUl = document.querySelector('.ef-type');
+                efTypeUl.innerHTML = ''; // Clear the list
+                for (let i = 0; i < typeOfCourseData.labels.length; i++) {
+                    const label = typeOfCourseData.labels[i];
+                    const count = typeOfCourseData.data[i];
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${label} (${count})`;
+                    efTypeUl.appendChild(listItem);
+                }
+        
+                // Fetch thematic focus counts
+                const thematicFocusResponse = await fetch(`http://127.0.0.1:8000/api/thematic_focus_counts_by_code/${code}`);
+                const thematicFocusData = await thematicFocusResponse.json();
+        
+                const efThematicUl = document.querySelector('.ef-thematic');
+                efThematicUl.innerHTML = ''; // Clear the list
+                for (let i = 0; i < thematicFocusData.labels.length; i++) {
+                    const label = thematicFocusData.labels[i];
+                    const count = thematicFocusData.data[i];
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${label} (${count})`;
+                    efThematicUl.appendChild(listItem);
+                }
+        
+                // Fetch target audience counts
+                const targetAudienceResponse = await fetch(`http://127.0.0.1:8000/api/target_audience_counts_by_code/${code}`);
+                const targetAudienceData = await targetAudienceResponse.json();
+        
+                const efTargetUl = document.querySelector('.ef-target');
+                efTargetUl.innerHTML = ''; // Clear the list
+                for (let i = 0; i < targetAudienceData.labels.length; i++) {
+                    const label = targetAudienceData.labels[i];
+                    const count = targetAudienceData.data[i];
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${label} (${count})`;
+                    efTargetUl.appendChild(listItem);
+                }
+        
+                // Fetch and render courses
+                const courseResponse = await fetch(`http://127.0.0.1:8000/api/courses_by_country/${code}`);
+                const clickedCountryCoursedata = await courseResponse.json();
+                renderCourses(clickedCountryCoursedata);
+            } catch (error) {
+                console.error('Error fetching or rendering data: ', error);
+            }
+        }
+                
         });
       
         const g = document.querySelector('#map svg g');
@@ -432,14 +575,13 @@
           loadingButton.text('Error fetching data');
         }
       });
-        console.log('courses rendered!!!');
-    }
 
+      console.log('courses rendered!!!');
+    }
     // Function to clear the cache (if needed)
     function clearCache() {
       localStorage.clear();
-    }
-  
+    }  
     const coursesDiv = $('.courses');
     const loadingButton = $('<button>').text('Loading...').prop('disabled', true);
     coursesDiv.append(loadingButton);
@@ -452,135 +594,43 @@
         // Retrieve the search term from the input field
         const searchTerm = $('#searchbar').val();
         console.log('searched something')
+        const coursesContainer= $('.courses')
 
         // Check if the data is cached
-        const cachedData = localStorage.getItem(`cachedSearchResults_${searchTerm}`);
-        if (cachedData) {
+        const cachedSearchData = localStorage.getItem(`cachedSearchResults_${searchTerm}`);
+        if (cachedSearchData) {
+          console.log(`Search term: ${searchTerm} \n cachedSearchResults: ${cachedSearchData}`)
           // Use cached data
-          const data = JSON.parse(cachedData);
+          const data = JSON.parse(cachedSearchData);
           renderCourses(data);
+          coursesContainer.get(0).scrollIntoView({ behavior: "smooth" });
           console.log('finished rendering courses')
         } else {
           // Make an AJAX request to fetch courses using the search term
           try {
-            const response = await fetch('http://127.0.0.1:8000/api/course_data/', {
+            const response = await fetch(`http://127.0.0.1:8000/api/course_data/?search=${searchTerm}`, {
               method: 'GET',
               headers: {
                 'X-API-KEY': '2c5aa8423852a993f670fe8e05570c627c3980654ce03e38378bbbd937030322'
               },
-              data: {
-                search: searchTerm
-              },
             });
             const data = await response.json();
-            console.log(`no cached data but gonna cache:  ${JSON.stringify(data)}`);
 
             // Cache the fetched data
             localStorage.setItem(`cachedSearchResults_${searchTerm}`, JSON.stringify(data));
-
-            // Render the data
-            console.log('just before rendering courses')
             renderCourses(data);
-            console.log(renderCourses)
-            console.log('after rendering courses')
+            coursesContainer.get(0).scrollIntoView({ behavior: "smooth" });
           } catch (error) {
             console.error('Error fetching or rendering data: ', error);
             loadingButton.text('Error fetching data');
+            
           }
         }
       });
     });
 
-    // $(document).ready(function() {
-    //   // Add an event listener for the form submission
-    //   $('.search').submit(function(event) {
-    //     event.preventDefault(); // Prevent the default form submission
 
-    //     // Retrieve the search term from the input field
-    //     const searchTerm = $('#searchbar').val();
-
-    //     // Make an AJAX request to fetch courses using the search term
-    //     $.ajax({
-    //       url: 'http://127.0.0.1:8000/api/course_data/', // Replace with your API endpoint
-    //       method: 'GET',
-    //       data: {
-    //         search: searchTerm
-    //       },
-    //       headers: {
-    //         'X-API-KEY': '2c5aa8423852a993f670fe8e05570c627c3980654ce03e38378bbbd937030322'
-    //       },
-    //       success: function(data) {
-    //         // Handle the successful response and populate the courses div
-    //         const coursesContainer = $('.courses');
-    //         coursesContainer.empty(); // Clear previous results
-
-    //         // data.forEach(function(course) {
-    //         //   // Create and append course elements here
-    //         //   const courseDiv = $('<div>').addClass('course');
-    //         //   // Populate course details within courseDiv
-    //         //   // ...
-
-    //         //   coursesContainer.append(courseDiv);
-    //         // });
-    //         data.forEach(async course => {
-    //             const courseDiv = $('<div>').addClass('course');
-                
-    //             try {
-    //               const countryResponse = await fetch(`http://127.0.0.1:8000/api/country/${course.institution_location}`);
-    //               const countryData = await countryResponse.json();
-                  
-    //               loadingButton.hide();
-                  
-    //               const courseTitleDiv = $(document.createElement('div')).addClass('course-title-container');
-    //               const courseRowOne = $(document.createElement('div')).addClass('row-1');
-    //               const courseColOne = $(document.createElement('div')).addClass('col-1');
-    //               const courseColTwo = $(document.createElement('div')).addClass('col-2');
-    //               const courseRowTwo = $(document.createElement('div')).addClass('row-2');
-                  
-    //               courseTitleDiv.append($('<h3>').html(`<strong><a href="${course.source}"><i class="fa fa-link" aria-hidden="true"></i></a> ${course.institution_name}</strong>`));
-    //               courseTitleDiv.append($('<p>').html(`${countryData.country_name}`));
-    //               courseDiv.append(courseTitleDiv);
-                  
-    //               courseColOne.append($('<p>').html('<strong> Type of course: </strong> ' + course.type_of_course));
-    //               courseColOne.append($('<p>').html('<strong> Thematic Focus: </strong> ' + course.thematic_focus));
-    //               courseColOne.append($('<p>').html('<strong> Target audience: </strong> ' + course.target_audience));
-    //               courseColOne.append($('<p>').html('<strong> Target population: </strong> ' + course.target_population));
-    //               courseColOne.append($('<p>').html('<strong> Objective of training: </strong> ' + course.objective_of_training));
-    //               courseColOne.append($('<p>').html('<strong> Teaching mechanism: </strong> ' + course.teaching_mechanism));
-                  
-    //               courseColTwo.append($('<p>').html('<strong> Teaching approach: </strong> ' + course.teaching_approach));
-    //               courseColTwo.append($('<p>').html('<strong> Frequency of Training: </strong> ' + course.frequency_of_training));
-    //               courseColTwo.append($('<p>').html('<strong> Funding Schemes: </strong> ' + course.funding_schemes));
-    //               courseColTwo.append($('<p>').html('<strong> Sustainibility factors: </strong> ' + course.sustainibility_factors));
-    //               courseColTwo.append($('<p>').html('<strong> Key Challenges: </strong> ' + course.key_challenges));
-                  
-    //               courseRowOne.append(courseColOne);
-    //               courseRowOne.append(courseColTwo);
-    //               courseDiv.append(courseRowOne);
-                  
-    //               courseRowTwo.append($('<p>').html('<strong> Scope: </strong> ' + course.scope));
-    //               courseDiv.append(courseRowTwo);
-                  
-    //             } catch (error) {
-    //               console.error('Error fetching country data:', error);
-    //               loadingButton.text('Error fetching data');
-    //             }
-            
-    //             coursesContainer.append(courseDiv);
-    //             coursesContainer.get(0).scrollIntoView({ behavior: "smooth" });
-    //         });
-
-    //       },
-    //       error: function(error) {
-    //         console.error('Error fetching courses:', error);
-    //       }
-    //     });
-    //   });
-    // });  
     fetchAndDisplayCourses();
-
-    
-    clearCache()
   
   })();
   

@@ -1,15 +1,17 @@
 from db import settings
-from rest_framework import generics
 from django.db.models import Q
-from .models import *
-from .serializers import *
 from django.db.models import Count
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from .mixins import ApiKeyRequiredMixin
-
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
+
+from .models import *
+from .serializers import *
+from .mixins import ApiKeyRequiredMixin
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework import generics
+
 
 @cache_page(60 * 15)
 @api_view(['GET'])
@@ -29,6 +31,7 @@ def teaching_mechanism_counts(request):
         'data': [item['count'] for item in teaching_mechanism_counts]
     }
     return Response(response_data)
+
 @cache_page(60 * 15)
 @api_view(['GET'])
 def country_chloropleth(request):
@@ -48,6 +51,7 @@ class CourseDataList(ApiKeyRequiredMixin, generics.ListAPIView):
     def get_queryset(self):
         # Build a cache key based on filter parameters
         cache_key = f"course_data_{self.request.query_params.urlencode()}"
+        print(f"current requested cache key: {cache_key}")
 
         # Try to fetch the queryset from the cache
         queryset = cache.get(cache_key)
@@ -68,8 +72,7 @@ class CourseDataList(ApiKeyRequiredMixin, generics.ListAPIView):
                     Q(teaching_approach__icontains=search_term) |
                     Q(institution_location__country_name__icontains=search_term)
                 )
-
-            # Cache the queryset for a specific duration (e.g., 15 minutes)
+            # Cache the queryset for a specific duration 
             cache.set(cache_key, queryset, 60 * 15)  # Cache for 15 minutes
 
         return queryset
@@ -84,14 +87,21 @@ def type_of_course_counts(request):
     }
     return Response(response_data)
 
-@cache_page(60 * 15)
 @api_view(['GET'])
 def courses_by_country(request, country_code):
     courses = CourseData.objects.filter(institution_location__country_code=country_code)
     serializer = CourseDataSerializer(courses, many=True)
     return Response(serializer.data)
 
-@cache_page(60 * 15)
+@api_view(['GET'])
+def type_of_course_counts_by_code(request, country_code):
+    courses = CourseData.objects.filter(institution_location__country_code=country_code).values('type_of_course').annotate(count=Count('id'))
+    response_data = {
+        'labels':[item['type_of_course'] for item in courses],
+        'data':[item['count'] for item in courses],
+    }
+    return Response(response_data)
+
 @api_view(['GET'])
 def thematic_focus_counts(request):
     thematic_focus_counts = CourseData.objects.values('thematic_focus').annotate(count=Count('id'))
@@ -101,12 +111,40 @@ def thematic_focus_counts(request):
     }
     return Response(response_data)
 
-@cache_page(60 * 15)
+
+@api_view(['GET'])
+def thematic_focus_counts_by_code(request, country_code):
+    thematic_focus_counts = CourseData.objects.filter(institution_location__country_code=country_code).values('thematic_focus').annotate(count=Count('id'))
+    response_data = {
+        'labels': [item['thematic_focus'] for item in thematic_focus_counts],
+        'data': [item['count'] for item in thematic_focus_counts]
+    }
+    return Response(response_data)
+
 @api_view(['GET'])
 def target_audience_counts(request):
     target_audience_counts = CourseData.objects.values('target_audience').annotate(count=Count('id'))
     response_data = {
         'labels': [item['target_audience'] for item in target_audience_counts],
         'data': [item['count'] for item in target_audience_counts]
+    }
+    return Response(response_data)
+
+@api_view(['GET'])
+def target_audience_counts_by_code(request, country_code):
+    target_audience_counts = CourseData.objects.filter(institution_location__country_code=country_code).values('target_audience').annotate(count=Count('id'))
+    response_data = {
+        'labels': [item['target_audience'] for item in target_audience_counts],
+        'data': [item['count'] for item in target_audience_counts]
+    }
+    return Response(response_data)
+
+
+@api_view(['GET'])
+def teaching_mechanism_counts_by_code(request, country_code):
+    teaching_mechanism_counts = CourseData.objects.filter(institution_location__country_code=country_code).values('teaching_mechanism').annotate(count=Count('id'))
+    response_data = {
+        'labels': [item['teaching_mechanism'] for item in teaching_mechanism_counts],
+        'data': [item['count'] for item in teaching_mechanism_counts]
     }
     return Response(response_data)

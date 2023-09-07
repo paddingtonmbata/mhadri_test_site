@@ -3,7 +3,6 @@ from . import views
 
 urlpatterns = [
     path('course_data/', views.CourseDataList.as_view(), name='course-data-list'),
-    path('teaching_mechanism_counts/', views.teaching_mechanism_counts, name='teaching_mechanism_counts'),
     path('country_course_count/', views.country_course_count, name='country_course_count'),
     path('country_chloropleth/', views.country_chloropleth, name='country_chloropleth'),
     path('country/<int:pk>', views.country, name="country"),
@@ -11,4 +10,9 @@ urlpatterns = [
     path('type_of_course_counts/', views.type_of_course_counts, name='type_of_course_counts'),
     path('thematic_focus_counts/', views.thematic_focus_counts, name='thematic_focus_counts'),
     path('target_audience_counts/', views.target_audience_counts, name='target_audience_counts'),
+    path('teaching_mechanism_counts/', views.teaching_mechanism_counts, name='teaching_mechanism_counts'),
+    path('type_of_course_counts_by_code/<str:country_code>', views.type_of_course_counts_by_code, name='type_of_course_counts_by_code'),
+    path('thematic_focus_counts_by_code/<str:country_code>', views.thematic_focus_counts_by_code, name='thematic_focus_counts_by_code'),
+    path('target_audience_counts_by_code/<str:country_code>', views.target_audience_counts_by_code, name='target_audience_counts_by_code'),
+    path('teaching_mechanism_counts_by_code/<str:country_code>', views.teaching_mechanism_counts_by_code, name='teaching_mechanism_counts_by_code'),
 ]
