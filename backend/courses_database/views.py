@@ -11,7 +11,28 @@ from .mixins import ApiKeyRequiredMixin
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import generics
+import requests
+from bs4 import BeautifulSoup
 
+def favicon(requests, url):
+    response = requests.get(url)
+
+    # Parse the HTML content using Beautiful Soup
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Find the <link> tag with rel="icon"
+    favicon_link = soup.find('link', rel='icon')
+
+    # Extract the href attribute of the <link> tag
+    if favicon_link is not None:
+        favicon_url = favicon_link.get('href')
+    else:
+        favicon_url = None
+
+    response_data = {
+        'url' : favicon_url
+    }
+    return Response(response_data)
 
 @cache_page(60 * 15)
 @api_view(['GET'])
@@ -20,6 +41,13 @@ def country_course_count(request):
     ordered_countries = sorted(countries_with_counts, key=lambda x: x.course_count, reverse=True)
     countries_data = [{'country_name': country.country_name, 'course_count': country.course_count} for country in ordered_countries]
     serializer = CountryCourseCountSerializer(countries_data, many=True)
+    return Response(serializer.data)
+
+@cache_page(60 * 15)
+@api_view(['GET'])
+def country_by_name(request, country_name):
+    countries = CourseData.objects.filter(institution_location__country_name=country_name)
+    serializer = CourseDataSerializer(countries, many=True)
     return Response(serializer.data)
 
 @cache_page(60 * 15)
@@ -90,6 +118,23 @@ def type_of_course_counts(request):
 @api_view(['GET'])
 def courses_by_country(request, country_code):
     courses = CourseData.objects.filter(institution_location__country_code=country_code)
+    serializer = CourseDataSerializer(courses, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def courses_by_category_code(request, country_code ,category):
+    courses = CourseData.objects.filter(institution_location__country_code=country_code).filter( 
+        Q(type_of_course__icontains=category) |
+        Q(teaching_mechanism__icontains=category)
+    )
+    serializer = CourseDataSerializer(courses, many=True)
+    return Response(serializer.data)
+@api_view(['GET'])
+def courses_by_category(request, category):
+    courses = CourseData.objects.all().filter( 
+        Q(type_of_course__icontains=category) |
+        Q(teaching_mechanism__icontains=category)
+    )
     serializer = CourseDataSerializer(courses, many=True)
     return Response(serializer.data)
 

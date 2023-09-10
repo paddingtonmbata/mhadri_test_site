@@ -15,4 +15,8 @@ urlpatterns = [
     path('thematic_focus_counts_by_code/<str:country_code>', views.thematic_focus_counts_by_code, name='thematic_focus_counts_by_code'),
     path('target_audience_counts_by_code/<str:country_code>', views.target_audience_counts_by_code, name='target_audience_counts_by_code'),
     path('teaching_mechanism_counts_by_code/<str:country_code>', views.teaching_mechanism_counts_by_code, name='teaching_mechanism_counts_by_code'),
+    path('courses_by_category_code/<str:country_code>/<str:category>', views.courses_by_category_code, name='courses_by_category_code'),
+    path('courses_by_category/<str:category>', views.courses_by_category, name='courses_by_category'),
+    path('country_by_name/<str:country_name>', views.country_by_name, name='country_by_name'),
+    path('favicon/<str:url>', views.favicon, name='favicon'),
 ]

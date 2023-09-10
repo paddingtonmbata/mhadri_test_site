@@ -34,6 +34,7 @@
     down_nav_arrow.addEventListener("click", () => {
       stats_page_wrapper.scrollIntoView({ behavior: "smooth" });
     });
+    
   
     // Fetch Data and Chart Creation
     function createBarGraph(data) {
@@ -53,7 +54,19 @@
         chart: {
           type: 'bar', 
           height: 500, 
-          fontFamily: 'IBM Plex Mono, monospace'
+          fontFamily: 'IBM Plex Mono, monospace',
+          events: {
+            dataPointSelection: async function (event, chartContext, config) {
+              const country_name = config.w.config.xaxis.categories[config.dataPointIndex];
+              console.log(country_name)
+              // Fetch and render courses for the clicked category
+              const courseResponse = await fetch(`http://127.0.0.1:8000/api/country_by_name/${country_name}`);
+              const countryCourses = await courseResponse.json();
+              const coursesContainer = $('.courses');
+              coursesContainer.get(0).scrollIntoView({ behavior: 'smooth'});
+              renderCourses(countryCourses); // Implement the renderCourses function to display courses              
+            }
+          }
         },
         plotOptions: { 
           bar: { 
@@ -104,122 +117,95 @@
     }
 // Assuming you have a chart instance globally defined, e.g., chart1 and chart2
 
-    async function createPieChart(chartId, data, chartType, legend_height, pieColor, title) {
-      const options = {
-          chart: {
-              type: chartType,
-              height: '369px',
-          },
-          series: data.data, // Set the series data from your fetched data
-          labels: data.labels,
-          dataLabels: {
-              enabled: false
-          },
-          legend: {
-              position: 'right',
-              height: legend_height
-          },
-          responsive: [{
+async function createPieChart(chartId, data, chartType, legend_height, pieColor, title, code) {
+  const options = {
+      series: data.data,
+      labels: data.labels,
+      dataLabels: {
+          enabled: false,
+      },
+      legend: {
+          position: 'right',
+          height: legend_height,
+      },
+      responsive: [
+          {
               breakpoint: 480,
               options: {
                   chart: {
-                      width: '100%'
+                      width: '100%',
                   },
                   legend: {
-                      position: 'bottom'
-                  }
-              }
-          }],
-          title: {
-              text: title,
-              align: 'center',
-              style: {
-                  fontSize: '14px',
-                  fontFamily: 'IBM Plex Mono, monospace'
-              }
+                      position: 'bottom',
+                  },
+              },
           },
-          theme: {
-            monochrome: {
+      ],
+      title: {
+          text: title,
+          align: 'center',
+          style: {
+              fontSize: '14px',
+              fontFamily: 'IBM Plex Mono, monospace',
+          },
+      },
+      theme: {
+          monochrome: {
               enabled: true,
               color: pieColor,
               shadeTo: 'light',
-              shadeIntensity: 0.9
-            }
+              shadeIntensity: 0.9,
           },
-      };
+      },
+      chart: {
+        type: chartType,
+        height: '369px',
+        events: {
+            dataPointSelection: async function (event, chartContext, config) {
+                // Check if the clicked element is a pie slice
+                if (code) {
+                  if (config.w.config.chart.type === 'donut') {
+                    // Extract the category from the clicked slice
+                    const category = config.w.config.labels[config.dataPointIndex];
 
-      // Check if the chart instance exists
-      if (typeof window[chartId] === 'undefined') {
-          // Create a new chart instance
-          window[chartId] = new ApexCharts(document.querySelector(chartId), options);
-          await window[chartId].render();
-      } else {
-          // Update the existing chart instance
-          await window[chartId].updateSeries(data.data, true); // Update series data
-          window[chartId].updateOptions(options); // Update chart options
-      }
-    }
+                    // Fetch and render courses for the clicked category
+                    const courseResponse = await fetch(`http://127.0.0.1:8000/api/courses_by_category_code/${code}/${category}`);
+                    const categoryCourses = await courseResponse.json();
+                    const coursesContainer = $('.courses');
+                    coursesContainer.get(0).scrollIntoView({ behavior: 'smooth'});
+                    renderCourses(categoryCourses); // Implement the renderCourses function to display courses
+                  }
+                } else {
+                  if (config.w.config.chart.type === 'donut') {
+                    // Extract the category from the clicked slice
+                    const category = config.w.config.labels[config.dataPointIndex];
+
+                    // Fetch and render courses for the clicked category
+                    const courseResponse = await fetch(`http://127.0.0.1:8000/api/courses_by_category/${category}`);
+                    const categoryCourses = await courseResponse.json();
+                    const coursesContainer = $('.courses');
+                    coursesContainer.get(0).scrollIntoView({ behavior: 'smooth'});
+                    renderCourses(categoryCourses); // Implement the renderCourses function to display courses
+                  }
+                }
+            },
+        },
+      },
+  };
+
+  // Check if the chart instance exists
+  if (typeof window[chartId] === 'undefined') {
+      // Create a new chart instance
+      window[chartId] = new ApexCharts(document.querySelector(chartId), options);
+      await window[chartId].render();
+  } else {
+      // Update the existing chart instance
+      await window[chartId].updateSeries(data.data, true); // Update series data
+      await window[chartId].updateOptions(options);
+  }
+}
 
   
-    // function createPieChart(elementId, data, type, legend_height, pieColor, title) {
-    //   const parentElement = $(elementId);
-    //   parentElement.empty()
-    //   console.log(`parent element: ${parentElement}`)
-    //   console.log(`${elementId} : \n ${JSON.stringify(data)}`);
-    //   const piechart = new ApexCharts(document.querySelector(elementId), {
-    //     series: data.data,
-    //     labels: data.labels,
-    //     chart: {
-    //         type: type,
-    //         height: '369px',
-    //     },
-    //     title: {
-    //       text: title,
-    //       align: 'center',
-    //       style: {
-    //         fontSize: '14px',
-    //         fontFamily: 'IBM Plex Mono, monospace'
-    //       }
-    //     },
-    //     theme: {
-    //       monochrome: {
-    //         enabled: true,
-    //         color: pieColor,
-    //         shadeTo: 'light',
-    //         shadeIntensity: 0.9
-    //       }
-    //     },
-    //     dataLabels: {
-    //         enabled: false,
-    //     },
-    //     legend: {
-    //         position: 'right',
-    //         height: legend_height
-    //     },
-    //     responsive: [{
-    //         breakpoint: 480,
-    //         options: {
-    //           chart: {
-    //               width: '100%'
-    //           },
-    //           legend: {
-    //               position: 'bottom'
-    //           }
-    //         }
-    //     }]
-    //     });
-    //   piechart.render();
-    //   // Check if the chart instance exists
-    //   if (typeof window[chartId] === 'undefined') {
-    //     // Create a new chart instance
-    //     window[elementId] = new ApexCharts(document.querySelector(chartId), options);
-    //     window[elementId].render();
-    //   } else {
-    //     // Update the existing chart instance
-    //     window[elementId].updateSeries(data.data); // Update series data
-    //     window[elementId].updateOptions(options); // Update chart options
-    //   }      
-    // }
     function createFilterMap(id) {
       mapObject = $(id).vectorMap({
         map: 'world_mill',
@@ -252,62 +238,8 @@
 
             const courseResponse = await fetch(`http://127.0.0.1:8000/api/courses_by_country/${code}`);
             const data = await courseResponse.json();
-
-            const coursesContainer = $('.courses');
-            const loadingButton = $('#loading-button');
-
-            coursesContainer.empty();
-            loadingButton.show();
+            renderCourses(data, true)          
             
-
-            data.forEach(async course => {
-                const courseDiv = $('<div>').addClass('course');
-                
-                try {
-                const countryResponse = await fetch(`http://127.0.0.1:8000/api/country/${course.institution_location}`);
-                const countryData = await countryResponse.json();
-                
-                loadingButton.hide();
-                
-                const courseTitleDiv = $(document.createElement('div')).addClass('course-title-container');
-                const courseRowOne = $(document.createElement('div')).addClass('row-1');
-                const courseColOne = $(document.createElement('div')).addClass('col-1');
-                const courseColTwo = $(document.createElement('div')).addClass('col-2');
-                const courseRowTwo = $(document.createElement('div')).addClass('row-2');
-                
-                courseTitleDiv.append($('<h3>').html(`<strong><a href="${course.source}"><i class="fa fa-link" aria-hidden="true"></i></a> ${course.institution_name}</strong>`));
-                courseTitleDiv.append($('<p>').html(`${countryData.country_name}`));
-                courseDiv.append(courseTitleDiv);
-                
-                courseColOne.append($('<p>').html('<strong> Type of course: </strong> ' + course.type_of_course));
-                courseColOne.append($('<p>').html('<strong> Thematic Focus: </strong> ' + course.thematic_focus));
-                courseColOne.append($('<p>').html('<strong> Target audience: </strong> ' + course.target_audience));
-                courseColOne.append($('<p>').html('<strong> Target population: </strong> ' + course.target_population));
-                courseColOne.append($('<p>').html('<strong> Objective of training: </strong> ' + course.objective_of_training));
-                courseColOne.append($('<p>').html('<strong> Teaching mechanism: </strong> ' + course.teaching_mechanism));
-                
-                courseColTwo.append($('<p>').html('<strong> Teaching approach: </strong> ' + course.teaching_approach));
-                courseColTwo.append($('<p>').html('<strong> Frequency of Training: </strong> ' + course.frequency_of_training));
-                courseColTwo.append($('<p>').html('<strong> Funding Schemes: </strong> ' + course.funding_schemes));
-                courseColTwo.append($('<p>').html('<strong> Sustainibility factors: </strong> ' + course.sustainibility_factors));
-                courseColTwo.append($('<p>').html('<strong> Key Challenges: </strong> ' + course.key_challenges));
-                
-                courseRowOne.append(courseColOne);
-                courseRowOne.append(courseColTwo);
-                courseDiv.append(courseRowOne);
-                
-                courseRowTwo.append($('<p>').html('<strong> Scope: </strong> ' + course.scope));
-                courseDiv.append(courseRowTwo);
-                
-                } catch (error) {
-                console.error('Error fetching country data:', error);
-                loadingButton.text('Error fetching data');
-                }
-            
-                coursesContainer.append(courseDiv);
-            });
-
-            coursesContainer.get(0).scrollIntoView({ behavior: "smooth" });
 
           } catch (error) {
             console.error(`Error fetching course data: ${error}`);
@@ -317,7 +249,6 @@
       const g = document.querySelector(`${id} svg g`);
       g.setAttribute("transform", "scale(1.1311111111111112) translate(-1.0050899209180199e-13, 0.6684556298980835)");
     }
-  
     function createMap(id, data) {
       
         var mapData = {};
@@ -353,13 +284,13 @@
           },
           // when a country is clicked on the first map
           onRegionClick: async function(event, code) {
-            console.log(`Clicked on: ${code}`);
+            console.log(`Clicked on: ${code}`);           
         
             try {
                 // Fetch teaching mechanism counts
                 const teachingMechanismResponse = await fetch(`http://127.0.0.1:8000/api/teaching_mechanism_counts_by_code/${code}`);
                 const teachingMechanismData = await teachingMechanismResponse.json();
-                createPieChart("#piechart1", teachingMechanismData, 'donut', 200, '#0071A4', 'Teaching mechanisms');
+                createPieChart("#piechart1", teachingMechanismData, 'donut', 200, '#0071A4', 'Teaching mechanisms', code);
         
                 const efTeachingUl = document.querySelector('.ef-teaching');
                 efTeachingUl.innerHTML = ''; // Clear the list
@@ -374,7 +305,7 @@
                 // Fetch type of course counts
                 const typeOfCourseResponse = await fetch(`http://127.0.0.1:8000/api/type_of_course_counts_by_code/${code}`);
                 const typeOfCourseData = await typeOfCourseResponse.json();
-                createPieChart("#piechart2", typeOfCourseData, 'donut', 250, '#fc0356', 'Type of courses');
+                createPieChart("#piechart2", typeOfCourseData, 'donut', 250, '#fc0356', 'Type of courses', code);
         
                 const efTypeUl = document.querySelector('.ef-type');
                 efTypeUl.innerHTML = ''; // Clear the list
@@ -439,7 +370,7 @@
   
     $(document).ready(function() {
       $.getJSON('http://127.0.0.1:8000/api/teaching_mechanism_counts/', function(data) {
-        createPieChart("#piechart1", data, 'donut', 200, '#0071A4', 'Teaching mechanisms');
+        createPieChart("#piechart1", data, 'donut', 200, '#0071A4', 'Teaching mechanisms', false);
         const efTeachingUl = document.querySelector('.ef-teaching');
         for (let i = 0; i < data.labels.length; i++) {
           const label = data.labels[i];
@@ -451,7 +382,7 @@
       });
   
       $.getJSON('http://127.0.0.1:8000/api/type_of_course_counts/', function(data) {
-        createPieChart("#piechart2", data, 'donut', 250, '#fc0356', 'Type of courses');
+        createPieChart("#piechart2", data, 'donut', 250, '#fc0356', 'Type of courses', false);
         const efTypeUl = document.querySelector('.ef-type');
         for (let i = 0; i < data.labels.length; i++) {
           const label = data.labels[i];
@@ -499,7 +430,7 @@
         if (cachedData) {
           // Use cached data
           const data = JSON.parse(cachedData);
-          renderCourses(data);
+          renderCourses(data, false);
         } else {
           // Fetch data from the server if not cached
           const response = await fetch('http://127.0.0.1:8000/api/course_data/', {
@@ -515,7 +446,7 @@
           localStorage.setItem('cachedCourses', JSON.stringify(data));
 
           // Render the data
-          renderCourses(data);
+          renderCourses(data, false);
         }
       } catch (error) {
         console.error('Error fetching or rendering data: ', error);
@@ -523,7 +454,7 @@
       }
     }
 
-    function renderCourses(data) {
+    function renderCourses(data, isSecondMap) {
 
       const coursesContainer = $('.courses');
       const loadingButton = $('#loading-button');
@@ -545,17 +476,20 @@
           const courseColOne = $(document.createElement('div')).addClass('col-1');
           const courseColTwo = $(document.createElement('div')).addClass('col-2');
           const courseRowTwo = $(document.createElement('div')).addClass('row-2');
+          const hiddenRow = $(document.createElement('div')).addClass('hidden')
           
           courseTitleDiv.append($('<h3>').html(`<strong><a href="${course.source}"><i class="fa fa-link" aria-hidden="true"></i></a> ${course.institution_name}</strong>`));
           courseTitleDiv.append($('<p>').html(`${countryData.country_name}`));
           courseDiv.append(courseTitleDiv);
           
           courseColOne.append($('<p>').html('<strong> Type of course: </strong> ' + course.type_of_course));
-          courseColOne.append($('<p>').html('<strong> Thematic Focus: </strong> ' + course.thematic_focus));
-          courseColOne.append($('<p>').html('<strong> Target audience: </strong> ' + course.target_audience));
-          courseColOne.append($('<p>').html('<strong> Target population: </strong> ' + course.target_population));
-          courseColOne.append($('<p>').html('<strong> Objective of training: </strong> ' + course.objective_of_training));
+          courseColOne.append($('<p>').html('<strong> Thematic Focus: </strong> ' + course.thematic_focus));          
           courseColOne.append($('<p>').html('<strong> Teaching mechanism: </strong> ' + course.teaching_mechanism));
+
+          hiddenRow.append($('<p>').html('<strong> Target audience: </strong> ' + course.target_audience));
+          hiddenRow.append($('<p>').html('<strong> Target population: </strong> ' + course.target_population));
+          hiddenRow.append($('<p>').html('<strong> Objective of training: </strong> ' + course.objective_of_training));
+          courseColOne.append(hiddenRow)
           
           courseColTwo.append($('<p>').html('<strong> Teaching approach: </strong> ' + course.teaching_approach));
           courseColTwo.append($('<p>').html('<strong> Frequency of Training: </strong> ' + course.frequency_of_training));
@@ -569,12 +503,43 @@
           
           courseRowTwo.append($('<p>').html('<strong> Scope: </strong> ' + course.scope));
           courseDiv.append(courseRowTwo);
+
+          const expandButton = $('<button>').addClass('expand-button').text('Read more');
+    
+          expandButton.on('click', function () {
+            hiddenRow.toggleClass('expanded')
+            courseColTwo.toggleClass('expanded');
+            courseDiv.toggleClass('expandedCourse')
+            // Change the button text based on whether it's expanded or collapsed
+            if (courseColTwo.hasClass('expanded')) {
+              expandButton.text('Read less');
+              courseDiv.get(0).scrollIntoView({behavior: 'smooth'})
+            } else {
+              expandButton.text('Read more');
+              courseDiv.get(0).scrollIntoView({behavior: 'smooth'})
+            }
+          });
+
+          const faviconResponse = await fetch(`http://127.0.0.1:8000/api/favicon/${course.source}`);
+          const favicon = await countryResponse;
+          console.log(`favicon: ${favicon}`)
+
+          const emblemButton = $('<button>').addClass('emblem').html(`<img src="${favicon.url}>`)
+
+          courseDiv.append(expandButton)
+          courseDiv.append(emblemButton)
+
           coursesContainer.append(courseDiv);
+
+          if (isSecondMap) {
+            coursesContainer.get(0).scrollIntoView({ behavior: "smooth" });
+          }
         } catch (error) {
           console.error('Error fetching country data:', error);
           loadingButton.text('Error fetching data');
         }
       });
+      
 
       console.log('courses rendered!!!');
     }
@@ -602,7 +567,7 @@
           console.log(`Search term: ${searchTerm} \n cachedSearchResults: ${cachedSearchData}`)
           // Use cached data
           const data = JSON.parse(cachedSearchData);
-          renderCourses(data);
+          renderCourses(data, false);
           coursesContainer.get(0).scrollIntoView({ behavior: "smooth" });
           console.log('finished rendering courses')
         } else {
@@ -618,7 +583,7 @@
 
             // Cache the fetched data
             localStorage.setItem(`cachedSearchResults_${searchTerm}`, JSON.stringify(data));
-            renderCourses(data);
+            renderCourses(data, false);
             coursesContainer.get(0).scrollIntoView({ behavior: "smooth" });
           } catch (error) {
             console.error('Error fetching or rendering data: ', error);

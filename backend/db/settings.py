@@ -81,6 +81,8 @@ TEMPLATES = [
     },
 ]
 
+APPEND_SLASH = False
+
 WSGI_APPLICATION = 'db.wsgi.application'
 
 
