@@ -1,12 +1,12 @@
+// wrap all the code in an IIFE
 (function() {
     // Variable Declarations
     const down_nav_arrow = document.querySelector("#down_nav_arrow");
     const stats_page_wrapper = document.querySelector("#stats_page_wrapper");
-    let mapObject;
     const expandButtons = document.querySelectorAll('.expand_filter_button');
 
     // Event listeners
-    //toggles the expanded filters
+    //toggles the expandable filters
     expandButtons.forEach(button => {
         button.addEventListener('click', () => {
             const expandedFilter = button.nextElementSibling;
@@ -36,7 +36,7 @@
     });
     
   
-    // Fetch Data and Chart Creation
+    //Creates a bar graoh that takes in data
     function createBarGraph(data) {
       const categories = data.map(item => item.country_name);
       const courseCounts = data.map(item => item.course_count);
@@ -56,6 +56,7 @@
           height: 500, 
           fontFamily: 'IBM Plex Mono, monospace',
           events: {
+            // when each point of the bargraoh is clicked on it renders courses belonging to the clicked country on the bargraph
             dataPointSelection: async function (event, chartContext, config) {
               const country_name = config.w.config.xaxis.categories[config.dataPointIndex];
               console.log(country_name)
@@ -115,97 +116,101 @@
       const chart = new ApexCharts(document.querySelector("#bargraph"), options);
       chart.render();
     }
-// Assuming you have a chart instance globally defined, e.g., chart1 and chart2
 
-async function createPieChart(chartId, data, chartType, legend_height, pieColor, title, code) {
-  const options = {
-      series: data.data,
-      labels: data.labels,
-      dataLabels: {
-          enabled: false,
-      },
-      legend: {
-          position: 'right',
-          height: legend_height,
-      },
-      responsive: [
-          {
-              breakpoint: 480,
-              options: {
-                  chart: {
-                      width: '100%',
-                  },
-                  legend: {
-                      position: 'bottom',
+    //creates a pie chart
+    async function createPieChart(chartId, data, chartType, legend_height, pieColor, title, code) {
+      const options = {
+          series: data.data,
+          labels: data.labels,
+          dataLabels: {
+              enabled: false,
+          },
+          legend: {
+              position: 'right',
+              height: legend_height,
+          },
+          responsive: [
+              {
+                  breakpoint: 480,
+                  options: {
+                      chart: {
+                          width: '100%',
+                      },
+                      legend: {
+                          position: 'bottom',
+                      },
                   },
               },
+          ],
+          title: {
+              text: title,
+              align: 'center',
+              style: {
+                  fontSize: '14px',
+                  fontFamily: 'IBM Plex Mono, monospace',
+              },
           },
-      ],
-      title: {
-          text: title,
-          align: 'center',
-          style: {
-              fontSize: '14px',
-              fontFamily: 'IBM Plex Mono, monospace',
+          theme: {
+              monochrome: {
+                  enabled: true,
+                  color: pieColor,
+                  shadeTo: 'light',
+                  shadeIntensity: 0.9,
+              },
           },
-      },
-      theme: {
-          monochrome: {
-              enabled: true,
-              color: pieColor,
-              shadeTo: 'light',
-              shadeIntensity: 0.9,
-          },
-      },
-      chart: {
-        type: chartType,
-        height: '369px',
-        events: {
-            dataPointSelection: async function (event, chartContext, config) {
-                // Check if the clicked element is a pie slice
-                if (code) {
-                  if (config.w.config.chart.type === 'donut') {
-                    // Extract the category from the clicked slice
-                    const category = config.w.config.labels[config.dataPointIndex];
+          chart: {
+            type: chartType,
+            height: '369px',
+            events: {
+              // clicking on the piechart will render courses with that specific filter indicated by the piechart
+                dataPointSelection: async function (event, chartContext, config) {
+                  // checks if the clicked piechart is alreadu filtered by country or not
+                    if (code) {
+                      // Check if the clicked element is a pie slice
+                      if (config.w.config.chart.type === 'donut') {
+                        // Extract the category from the clicked slice
+                        const category = config.w.config.labels[config.dataPointIndex];
 
-                    // Fetch and render courses for the clicked category
-                    const courseResponse = await fetch(`http://127.0.0.1:8000/api/courses_by_category_code/${code}/${category}`);
-                    const categoryCourses = await courseResponse.json();
-                    const coursesContainer = $('.courses');
-                    coursesContainer.get(0).scrollIntoView({ behavior: 'smooth'});
-                    renderCourses(categoryCourses); // Implement the renderCourses function to display courses
-                  }
-                } else {
-                  if (config.w.config.chart.type === 'donut') {
-                    // Extract the category from the clicked slice
-                    const category = config.w.config.labels[config.dataPointIndex];
+                        // Fetch and render courses for the clicked category
+                        const courseResponse = await fetch(`http://127.0.0.1:8000/api/courses_by_category_code/${code}/${category}`);
+                        const categoryCourses = await courseResponse.json();
+                        const coursesContainer = $('.courses');
+                        coursesContainer.get(0).scrollIntoView({ behavior: 'smooth'});
+                        renderCourses(categoryCourses); // Implement the renderCourses function to display courses
+                      }
+                    } else {
+                      if (config.w.config.chart.type === 'donut') {
+                        // Extract the category from the clicked slice
+                        const category = config.w.config.labels[config.dataPointIndex];
 
-                    // Fetch and render courses for the clicked category
-                    const courseResponse = await fetch(`http://127.0.0.1:8000/api/courses_by_category/${category}`);
-                    const categoryCourses = await courseResponse.json();
-                    const coursesContainer = $('.courses');
-                    coursesContainer.get(0).scrollIntoView({ behavior: 'smooth'});
-                    renderCourses(categoryCourses); // Implement the renderCourses function to display courses
-                  }
-                }
+                        // Fetch and render courses for the clicked category
+                        const courseResponse = await fetch(`http://127.0.0.1:8000/api/courses_by_category/${category}`);
+                        const categoryCourses = await courseResponse.json();
+                        const coursesContainer = $('.courses');
+                        coursesContainer.get(0).scrollIntoView({ behavior: 'smooth'});
+                        renderCourses(categoryCourses); // Implement the renderCourses function to display courses
+                      }
+                    }
+                },
             },
-        },
-      },
-  };
+          },
+      };
 
-  // Check if the chart instance exists
-  if (typeof window[chartId] === 'undefined') {
-      // Create a new chart instance
-      window[chartId] = new ApexCharts(document.querySelector(chartId), options);
-      await window[chartId].render();
-  } else {
-      // Update the existing chart instance
-      await window[chartId].updateSeries(data.data, true); // Update series data
-      await window[chartId].updateOptions(options);
-  }
-}
+      // ensures smooth rerendering of the piechart for when you click on a country
+      // Check if the chart instance exists
+      if (typeof window[chartId] === 'undefined') {
+          // Create a new chart instance
+          window[chartId] = new ApexCharts(document.querySelector(chartId), options);
+          await window[chartId].render();
+      } else {
+          // Update the existing chart instance
+          await window[chartId].updateSeries(data.data, true); // Update series data
+          await window[chartId].updateOptions(options);
+      }
+    }   
 
-  
+
+    // creates a filter map
     function createFilterMap(id) {
       var selectedRegion = null;
       var originalFillColors = {};
@@ -230,6 +235,7 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
           }
         },
         onRegionClick: async function(event, code) {
+          //logic to show the selected country
           if (selectedRegion) {
             var prevRegionElement = $(id).find(`[data-code="${selectedRegion}"]`);
             prevRegionElement.css('fill', originalFillColors[selectedRegion]);
@@ -245,7 +251,7 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
           } else {
               selectedRegion = null; // Reset the selected region
           } 
-          // Fetch courses from the clicked country
+          // Fetch and display courses from the clicked country
           try {
             // Remove the previously highlighted region
             $('.jvectormap-region.active').removeClass('active');
@@ -266,12 +272,14 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
       const g = document.querySelector(`${id} svg g`);
       g.setAttribute("transform", "scale(1.1311111111111112) translate(-1.0050899209180199e-13, 0.6684556298980835)");
     }
+    //creates the map on the stats page
     function createMap(id, data) {
       
         let mapData = {};
         var selectedRegion = null;
         var originalFillColors = {};
         
+        // creates an object for the chloropleth effect on the map
         for (var i = 0; i < data.length; i++) {
         var countryCode = Object.keys(data[i])[0];
         var courseCount = data[i][countryCode];
@@ -304,7 +312,7 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
           // when a country is clicked on the first map
           onRegionClick: async function(event, code) {
             console.log(`Clicked on: ${code}`);
-
+            //logic to show selected country
             if (selectedRegion) {
               var prevRegionElement = $(id).find(`[data-code="${selectedRegion}"]`);
               prevRegionElement.css('fill', originalFillColors[selectedRegion]);
@@ -320,7 +328,7 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
             } else {
                 selectedRegion = null; // Reset the selected region
             }                 
-        
+            // logic for rerendering piecharts, courses and updating the filter page based on the clicked country
             try {
                 // Fetch teaching mechanism counts
                 const teachingMechanismResponse = await fetch(`http://127.0.0.1:8000/api/teaching_mechanism_counts_by_code/${code}`);
@@ -395,14 +403,14 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
         g.setAttribute("transform", "scale (1.1685786825480715) translate (45.04582672908927,0)");
       }
       
-  
+    // fetches data to use for the bar graph showing the number of courses in each country
     fetch('http://127.0.0.1:8000/api/country_course_count/')
       .then(response => response.json())
       .then(data => {
         createBarGraph(data);
       })
       .catch(error => console.error('Error fetching data:', error));
-  
+    // renders the teaching mechanism pie chart
     $(document).ready(function() {
       $.getJSON('http://127.0.0.1:8000/api/teaching_mechanism_counts/', function(data) {
         createPieChart("#piechart1", data, 'donut', 200, '#0071A4', 'Teaching mechanisms', false);
@@ -415,7 +423,7 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
           efTeachingUl.appendChild(listItem);
         }
       });
-  
+      // renders the type of course piechart
       $.getJSON('http://127.0.0.1:8000/api/type_of_course_counts/', function(data) {
         createPieChart("#piechart2", data, 'donut', 250, '#fc0356', 'Type of courses', false);
         const efTypeUl = document.querySelector('.ef-type');
@@ -511,7 +519,8 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
           const courseColOne = $(document.createElement('div')).addClass('col-1');
           const courseColTwo = $(document.createElement('div')).addClass('col-2').addClass('hidden');
           const courseRowTwo = $(document.createElement('div')).addClass('row-2');
-          const hiddenRow = $(document.createElement('div')).addClass('hidden')
+          const hiddenRow = $(document.createElement('div')).addClass('hidden');
+          const emblemButton = $(document.createElement('div')).addClass('emblem-button').html(`<img src=${faviconUrl}/>`);
           
           courseTitleDiv.append($('<h3>').html(`<strong><a href="${course.source}"><i class="fa fa-link" aria-hidden="true"></i></a> ${course.institution_name}</strong>`));
           courseTitleDiv.append($('<p>').html(`${countryData.country_name}`));
@@ -524,7 +533,7 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
           hiddenRow.append($('<p>').html('<strong> Target audience: </strong> ' + course.target_audience));
           hiddenRow.append($('<p>').html('<strong> Target population: </strong> ' + course.target_population));
           hiddenRow.append($('<p>').html('<strong> Objective of training: </strong> ' + course.objective_of_training));
-          courseColOne.append(hiddenRow)
+          courseColOne.append(hiddenRow);
           
           courseColTwo.append($('<p>').html('<strong> Teaching approach: </strong> ' + course.teaching_approach));
           courseColTwo.append($('<p>').html('<strong> Frequency of Training: </strong> ' + course.frequency_of_training));
@@ -542,19 +551,19 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
           const expandButton = $('<button>').addClass('expand-button').text('Read more');
     
           expandButton.on('click', function () {
-            hiddenRow.toggleClass('expanded')
+            hiddenRow.toggleClass('expanded');
             courseColTwo.toggleClass('expanded');
             courseDiv.toggleClass('expandedCourse')
             // Change the button text based on whether it's expanded or collapsed
             if (courseColTwo.hasClass('expanded')) {
               expandButton.text('Read less');
-              courseDiv.get(0).scrollIntoView({behavior: 'smooth'})
+              courseDiv.get(0).scrollIntoView({behavior: 'smooth'});
             } else {
               expandButton.text('Read more');
-              courseDiv.get(0).scrollIntoView({behavior: 'smooth'})
+              courseDiv.get(0).scrollIntoView({behavior: 'smooth'});
             }
           });
-          courseDiv.append(expandButton)
+          courseDiv.append(expandButton);
 
           coursesContainer.append(courseDiv);
 
