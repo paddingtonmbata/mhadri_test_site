@@ -192,6 +192,7 @@ body {
 
 .course {
   padding: 20px;
+  padding-bottom: 30px;
   border-radius: 17px;
   width: 48%;
   box-shadow: 0 0 20px -3px rgba(0, 0, 0, 0.25);
@@ -205,6 +206,10 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+.course .row-1 .col-1 {
+  max-width: 70%;
 }
 
 .course-title-container h3 {
@@ -345,10 +350,6 @@ body {
   background-color: rgba(14, 120, 187, 0.6980392157);
 }
 
-.course .row-1 .col-2 {
-  display: none;
-}
-
 .hidden {
   display: none;
 }
@@ -363,4 +364,20 @@ body {
 
 .highlighted {
   fill: rgb(253, 48, 116);
+}
+
+#reset_filter_button {
+  padding: 15px 10px;
+  color: white;
+  font-size: 12px;
+  font-weight: bolder;
+  background-color: #90E0EF;
+  margin-top: 15px;
+  border-radius: 8px;
+  transition: all 200ms ease;
+}
+
+#reset_filter_button:hover {
+  color: #90E0EF;
+  background-color: white;
 }/*# sourceMappingURL=style.css.map */

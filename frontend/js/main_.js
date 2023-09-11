@@ -207,6 +207,8 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
 
   
     function createFilterMap(id) {
+      var selectedRegion = null;
+      var originalFillColors = {};
       mapObject = $(id).vectorMap({
         map: 'world_mill',
         backgroundColor: 'transparent',
@@ -228,6 +230,21 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
           }
         },
         onRegionClick: async function(event, code) {
+          if (selectedRegion) {
+            var prevRegionElement = $(id).find(`[data-code="${selectedRegion}"]`);
+            prevRegionElement.css('fill', originalFillColors[selectedRegion]);
+          }
+
+          // Toggle the highlighting state for the clicked region
+          if (selectedRegion !== code) {
+              selectedRegion = code;
+              var currentRegionElement = $(id).find(`[data-code="${selectedRegion}"]`);
+              // Store the original fill color before changing it
+              originalFillColors[selectedRegion] = currentRegionElement.css('fill');
+              currentRegionElement.css('fill', 'rgb(0, 143, 255)'); // Change to your desired highlight color
+          } else {
+              selectedRegion = null; // Reset the selected region
+          } 
           // Fetch courses from the clicked country
           try {
             // Remove the previously highlighted region
@@ -251,7 +268,9 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
     }
     function createMap(id, data) {
       
-        var mapData = {};
+        let mapData = {};
+        var selectedRegion = null;
+        var originalFillColors = {};
         
         for (var i = 0; i < data.length; i++) {
         var countryCode = Object.keys(data[i])[0];
@@ -284,7 +303,23 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
           },
           // when a country is clicked on the first map
           onRegionClick: async function(event, code) {
-            console.log(`Clicked on: ${code}`);           
+            console.log(`Clicked on: ${code}`);
+
+            if (selectedRegion) {
+              var prevRegionElement = $(id).find(`[data-code="${selectedRegion}"]`);
+              prevRegionElement.css('fill', originalFillColors[selectedRegion]);
+            }
+
+            // Toggle the highlighting state for the clicked region
+            if (selectedRegion !== code) {
+                selectedRegion = code;
+                var currentRegionElement = $(id).find(`[data-code="${selectedRegion}"]`);
+                // Store the original fill color before changing it
+                originalFillColors[selectedRegion] = currentRegionElement.css('fill');
+                currentRegionElement.css('fill', 'rgb(0, 143, 255)'); // Change to your desired highlight color
+            } else {
+                selectedRegion = null; // Reset the selected region
+            }                 
         
             try {
                 // Fetch teaching mechanism counts
@@ -474,7 +509,7 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
           const courseTitleDiv = $(document.createElement('div')).addClass('course-title-container');
           const courseRowOne = $(document.createElement('div')).addClass('row-1');
           const courseColOne = $(document.createElement('div')).addClass('col-1');
-          const courseColTwo = $(document.createElement('div')).addClass('col-2');
+          const courseColTwo = $(document.createElement('div')).addClass('col-2').addClass('hidden');
           const courseRowTwo = $(document.createElement('div')).addClass('row-2');
           const hiddenRow = $(document.createElement('div')).addClass('hidden')
           
@@ -519,15 +554,7 @@ async function createPieChart(chartId, data, chartType, legend_height, pieColor,
               courseDiv.get(0).scrollIntoView({behavior: 'smooth'})
             }
           });
-
-          const faviconResponse = await fetch(`http://127.0.0.1:8000/api/favicon/${course.source}`);
-          const favicon = await countryResponse;
-          console.log(`favicon: ${favicon}`)
-
-          const emblemButton = $('<button>').addClass('emblem').html(`<img src="${favicon.url}>`)
-
           courseDiv.append(expandButton)
-          courseDiv.append(emblemButton)
 
           coursesContainer.append(courseDiv);
 
