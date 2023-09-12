@@ -113,7 +113,6 @@ body {
 }
 
 #stats_page_wrapper {
-  height: 105vh;
   width: 100vw;
   padding: 5px;
 }
@@ -366,7 +365,7 @@ body {
   fill: rgb(253, 48, 116);
 }
 
-#reset_filter_button {
+#reset_filter_button, #reset_stats_page {
   padding: 15px 10px;
   color: white;
   font-size: 12px;
@@ -377,7 +376,11 @@ body {
   transition: all 200ms ease;
 }
 
-#reset_filter_button:hover {
+#reset_filter_button:hover, #reset_stats_page:hover {
   color: #90E0EF;
   background-color: white;
+}
+
+.footer-container {
+  background-color: #0077B6;
 }/*# sourceMappingURL=style.css.map */

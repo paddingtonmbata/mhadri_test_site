@@ -4,7 +4,111 @@
     const down_nav_arrow = document.querySelector("#down_nav_arrow");
     const stats_page_wrapper = document.querySelector("#stats_page_wrapper");
     const expandButtons = document.querySelectorAll('.expand_filter_button');
+    
+    $(document).ready(()=>{
+      const resetStatsButton = document.querySelector('#reset_stats_page');
 
+      resetStatsButton.addEventListener('click', () => {
+        fetchAndDisplayCourses();
+        $(document).ready(function() {
+          $.getJSON('http://127.0.0.1:8000/api/teaching_mechanism_counts/', function(data) {
+            createPieChart("#piechart1", data, 'donut', 200, '#0071A4', 'Teaching mechanisms', false);
+            const efTeachingUl = document.querySelector('.ef-teaching');
+            for (let i = 0; i < data.labels.length; i++) {
+              const label = data.labels[i];
+              const count = data.data[i];
+              const listItem = document.createElement('li');
+              listItem.textContent = `${label} (${count})`;
+              efTeachingUl.appendChild(listItem);
+            }
+          });
+          // renders the type of course piechart
+          $.getJSON('http://127.0.0.1:8000/api/type_of_course_counts/', function(data) {
+            createPieChart("#piechart2", data, 'donut', 250, '#fc0356', 'Type of courses', false);
+            const efTypeUl = document.querySelector('.ef-type');
+            for (let i = 0; i < data.labels.length; i++) {
+              const label = data.labels[i];
+              const count = data.data[i];
+              const listItem = document.createElement('li');
+              listItem.textContent = `${label} (${count})`;
+              efTypeUl.appendChild(listItem);
+            }
+          });
+          $.getJSON('http://127.0.0.1:8000/api/thematic_focus_counts/', function(data) {
+            const efThematicUl = document.querySelector('.ef-thematic');
+            for (let i = 0; i < data.labels.length; i++) {
+              const label = data.labels[i];
+              const count = data.data[i];
+              const listItem = document.createElement('li');
+              listItem.textContent = `${label} (${count})`;
+              efThematicUl.appendChild(listItem);
+            }
+          });
+          $.getJSON('http://127.0.0.1:8000/api/target_audience_counts/', function(data) {
+            const efTargetUl = document.querySelector('.ef-target');
+            for (let i = 0; i < data.labels.length; i++) {
+              const label = data.labels[i];
+              const count = data.data[i];
+              const listItem = document.createElement('li');
+              listItem.textContent = `${label} (${count})`;
+              efTargetUl.appendChild(listItem);
+            }
+          });
+        });      
+      });
+      const resetFiltersButton = document.querySelector('#reset_filter_button');
+
+      resetFiltersButton.addEventListener('click', () => {
+        fetchAndDisplayCourses();
+        const coursesContainer = $('.courses');
+        coursesContainer.get(0).scrollIntoView({ behavior: 'smooth'});
+        $(document).ready(function() {
+          $.getJSON('http://127.0.0.1:8000/api/teaching_mechanism_counts/', function(data) {
+            createPieChart("#piechart1", data, 'donut', 200, '#0071A4', 'Teaching mechanisms', false);
+            const efTeachingUl = document.querySelector('.ef-teaching');
+            for (let i = 0; i < data.labels.length; i++) {
+              const label = data.labels[i];
+              const count = data.data[i];
+              const listItem = document.createElement('li');
+              listItem.textContent = `${label} (${count})`;
+              efTeachingUl.appendChild(listItem);
+            }
+          });
+          // renders the type of course piechart
+          $.getJSON('http://127.0.0.1:8000/api/type_of_course_counts/', function(data) {
+            createPieChart("#piechart2", data, 'donut', 250, '#fc0356', 'Type of courses', false);
+            const efTypeUl = document.querySelector('.ef-type');
+            for (let i = 0; i < data.labels.length; i++) {
+              const label = data.labels[i];
+              const count = data.data[i];
+              const listItem = document.createElement('li');
+              listItem.textContent = `${label} (${count})`;
+              efTypeUl.appendChild(listItem);
+            }
+          });
+          $.getJSON('http://127.0.0.1:8000/api/thematic_focus_counts/', function(data) {
+            const efThematicUl = document.querySelector('.ef-thematic');
+            for (let i = 0; i < data.labels.length; i++) {
+              const label = data.labels[i];
+              const count = data.data[i];
+              const listItem = document.createElement('li');
+              listItem.textContent = `${label} (${count})`;
+              efThematicUl.appendChild(listItem);
+            }
+          });
+          $.getJSON('http://127.0.0.1:8000/api/target_audience_counts/', function(data) {
+            const efTargetUl = document.querySelector('.ef-target');
+            for (let i = 0; i < data.labels.length; i++) {
+              const label = data.labels[i];
+              const count = data.data[i];
+              const listItem = document.createElement('li');
+              listItem.textContent = `${label} (${count})`;
+              efTargetUl.appendChild(listItem);
+            }
+          });
+        });      
+      });
+    });
     // Event listeners
     //toggles the expandable filters
     expandButtons.forEach(button => {
@@ -520,7 +624,6 @@
           const courseColTwo = $(document.createElement('div')).addClass('col-2').addClass('hidden');
           const courseRowTwo = $(document.createElement('div')).addClass('row-2');
           const hiddenRow = $(document.createElement('div')).addClass('hidden');
-          const emblemButton = $(document.createElement('div')).addClass('emblem-button').html(`<img src=${faviconUrl}/>`);
           
           courseTitleDiv.append($('<h3>').html(`<strong><a href="${course.source}"><i class="fa fa-link" aria-hidden="true"></i></a> ${course.institution_name}</strong>`));
           courseTitleDiv.append($('<p>').html(`${countryData.country_name}`));
