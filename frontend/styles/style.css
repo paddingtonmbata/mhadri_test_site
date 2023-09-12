@@ -383,4 +383,25 @@ body {
 
 .footer-container {
   background-color: #0077B6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100px 0px;
+}
+
+.footer-container img {
+  width: auto;
+  height: 200px;
+}
+
+.footer-text h3 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.footer-text p {
+  color: #333333;
+  font-size: 18px;
+  font-weight: bold;
 }/*# sourceMappingURL=style.css.map */
