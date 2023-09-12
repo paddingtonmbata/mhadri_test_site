@@ -241,7 +241,7 @@ body {
 
 .filtering_page {
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
@@ -271,9 +271,6 @@ body {
   width: 100%;
 }
 
-.expand_filter_button {
-  pointer-events: visible;
-}
 
 .expand_filter {
   transition: all 100ms ease;
@@ -310,6 +307,10 @@ body {
 
 .filter {
   margin: 25px 0px 25px 45px;
+}
+
+.expand_filter_button {
+  cursor: pointer;
 }
 
 .expanded-filter {
@@ -386,6 +387,7 @@ body {
   margin-top: 15px;
   border-radius: 8px;
   transition: all 200ms ease;
+  cursor: pointer;
 }
 
 #reset_filter_button:hover, #reset_stats_page:hover {
@@ -416,4 +418,8 @@ body {
   color: #333333;
   font-size: 18px;
   font-weight: bold;
+}
+
+.expanded-filter li {
+  cursor: pointer;
 }

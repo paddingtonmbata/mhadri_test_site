@@ -125,7 +125,9 @@ def courses_by_country(request, country_code):
 def courses_by_category_code(request, country_code ,category):
     courses = CourseData.objects.filter(institution_location__country_code=country_code).filter( 
         Q(type_of_course__icontains=category) |
-        Q(teaching_mechanism__icontains=category)
+        Q(teaching_mechanism__icontains=category) |
+        Q(thematic_focus__icontains=category) |
+        Q(target_audience__icontains=category)
     )
     serializer = CourseDataSerializer(courses, many=True)
     return Response(serializer.data)
@@ -133,7 +135,9 @@ def courses_by_category_code(request, country_code ,category):
 def courses_by_category(request, category):
     courses = CourseData.objects.all().filter( 
         Q(type_of_course__icontains=category) |
-        Q(teaching_mechanism__icontains=category)
+        Q(teaching_mechanism__icontains=category) |
+        Q(thematic_focus__icontains=category)  |
+        Q(target_audience__icontains=category)
     )
     serializer = CourseDataSerializer(courses, many=True)
     return Response(serializer.data)

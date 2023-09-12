@@ -281,6 +281,19 @@
                         const coursesContainer = $('.courses');
                         coursesContainer.get(0).scrollIntoView({ behavior: 'smooth'});
                         renderCourses(categoryCourses); // Implement the renderCourses function to display courses
+                        // Logic to fetch and render courses based on the selected filter
+                        // Click event listener for Teaching Mechanisms filter
+                        $('.filters').on('click', '.expanded-filter li', async function() {
+                          const filter = $(this).text().split(' ')[0]; // Extract the filter value
+                          console.log(`filter: ${filter}`);
+                          const categoryCourses = await fetch(`http://127.0.0.1:8000/api/courses_by_category_code/${code}/${filter}`);
+                          const categoryCoursesResponse = await categoryCourses.json();
+                          console.log(`categoryCourses: ${JSON.stringify(categoryCoursesResponse)}`);
+                          coursesContainer.get(0).scrollIntoView({ behavior: 'smooth' });
+                          renderCourses(categoryCoursesResponse, false);
+                        });
+                      
+                        console.log('finished applying events');                     
                       }
                     } else {
                       if (config.w.config.chart.type === 'donut') {
@@ -293,6 +306,23 @@
                         const coursesContainer = $('.courses');
                         coursesContainer.get(0).scrollIntoView({ behavior: 'smooth'});
                         renderCourses(categoryCourses); // Implement the renderCourses function to display courses
+
+                        // Logic to fetch and render courses based on the selected filter
+                        // Click event listener for Teaching Mechanisms filter
+                        console.log('applying events');
+                      
+                        // Event delegation for all filter lists
+                        $('.filters').on('click', '.expanded-filter li', async function() {
+                          const filter = $(this).text().split(' ')[0]; // Extract the filter value
+                          console.log(`filter: ${filter}`);
+                          const categoryCourses = await fetch(`http://127.0.0.1:8000/api/courses_by_category/${filter}`);
+                          const categoryCoursesResponse = await categoryCourses.json();
+                          console.log(`categoryCourses: ${JSON.stringify(categoryCoursesResponse)}`);
+                          coursesContainer.get(0).scrollIntoView({ behavior: 'smooth' });
+                          renderCourses(categoryCoursesResponse, false);
+                        });
+                      
+                        console.log('finished applying events');
                       }
                     }
                 },
@@ -559,7 +589,7 @@
           efTargetUl.appendChild(listItem);
         }
       });
-    });
+    });        
   
     $(document).ready(function() {
       $.getJSON('http://127.0.0.1:8000/api/country_chloropleth/', function(data) {
@@ -733,7 +763,26 @@
       });
     });
 
-
+    // Logic to fetch and render courses based on the selected filter
+    // Click event listener for Teaching Mechanisms filter
+    $(document).ready(() => {
+      const coursesContainer = $('.courses');
+      console.log('applying events');
+    
+      // Event delegation for all filter lists
+      $('.filters').on('click', '.expanded-filter li', async function() {
+        const filter = $(this).text().split(' ')[0]; // Extract the filter value
+        console.log(`filter: ${filter}`);
+        const categoryCourses = await fetch(`http://127.0.0.1:8000/api/courses_by_category/${filter}`);
+        const categoryCoursesResponse = await categoryCourses.json();
+        console.log(`categoryCourses: ${JSON.stringify(categoryCoursesResponse)}`);
+        coursesContainer.get(0).scrollIntoView({ behavior: 'smooth' });
+        renderCourses(categoryCoursesResponse, false);
+      });
+    
+      console.log('finished applying events');
+    });
+        
     fetchAndDisplayCourses();
   
   })();
