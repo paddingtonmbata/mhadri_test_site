@@ -35,7 +35,9 @@ SECRET_KEY = 'django-insecure-!^pyz!x2_l2+^08*&$*15z0-c30c6jt8_1_$q3423f_n%xm!=(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "mhadri-test-site-bdfa87d23e0b.herokuapp.com",
+]
 
 
 # Application definition
@@ -61,12 +63,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
+
 
 API_KEY = '2c5aa8423852a993f670fe8e05570c627c3980654ce03e38378bbbd937030322'
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
+    "https://master--delicate-treacle-bd18a4.netlify.app",
+    "https://6502064077bf8134d344c77e--wondrous-taffy-2754e1.netlify.app"
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -144,10 +150,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static")
-]
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -155,3 +159,5 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True

@@ -12,27 +12,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import generics
 import requests
-from bs4 import BeautifulSoup
-
-def favicon(requests, url):
-    response = requests.get(url)
-
-    # Parse the HTML content using Beautiful Soup
-    soup = BeautifulSoup(response.text, 'html.parser')
-
-    # Find the <link> tag with rel="icon"
-    favicon_link = soup.find('link', rel='icon')
-
-    # Extract the href attribute of the <link> tag
-    if favicon_link is not None:
-        favicon_url = favicon_link.get('href')
-    else:
-        favicon_url = None
-
-    response_data = {
-        'url' : favicon_url
-    }
-    return Response(response_data)
 
 @cache_page(60 * 15)
 @api_view(['GET'])

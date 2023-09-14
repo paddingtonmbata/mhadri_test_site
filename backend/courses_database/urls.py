@@ -18,5 +18,4 @@ urlpatterns = [
     path('courses_by_category_code/<str:country_code>/<str:category>', views.courses_by_category_code, name='courses_by_category_code'),
     path('courses_by_category/<str:category>', views.courses_by_category, name='courses_by_category'),
     path('country_by_name/<str:country_name>', views.country_by_name, name='country_by_name'),
-    path('favicon/<str:url>', views.favicon, name='favicon'),
 ]

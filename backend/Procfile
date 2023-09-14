@@ -1,1 +1,1 @@
-web: gunicorn mhadri_test_site.wsgi
+web: gunicorn db.wsgi
