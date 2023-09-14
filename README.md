@@ -1,2 +1,2 @@
-# mhadri migration and health related courses repository
+# MHADRI migration and health related courses repository
 ![MHADRI LOGOG](./frontend/images/logo.png)
